@@ -41,7 +41,7 @@ $(SWIG_GO_SOURCES) : $(SWIG_DEF)
 	mkdir -p src/github.com/griddb
 	ln -s `pwd`/src `pwd`/src/github.com/griddb/go_client
 	$(SWIG) -outdir src/github.com/griddb/go_client/ -o $@ -c++ -go -cgo -use-shlib -intgosize 64 $<
-	sed -i "/^import \"C\"/i// #cgo CPPFLAGS: -std=c++0x -I$$\{SRCDIR\}/../include\n// #cgo LDFLAGS: -L$$\{SRCDIR\}/../libs -lrt -lgridstore" src/griddb_go.go
+	sed -i "/^import \"C\"/i// #cgo CXXFLAGS: -std=c++0x -I$$\{SRCDIR\}/../include\n// #cgo LDFLAGS: -L$$\{SRCDIR\}/../libs -lrt -lgridstore" src/griddb_go.go
 
 .cpp.o:
 	$(CXX) $(CPPFLAGS) -c -o $@ $(INCLUDES) $<
