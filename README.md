@@ -85,10 +85,8 @@ Please refer to the following files for more detailed information.
 
 Note:
 1. The current API might be changed in the next version. e.g. ContainerInfo()
-2. There are some limitations for using the current sources.
+2. There is a limitation for using the current sources.
     - We must set GODEBUG.
-    - The following warning might be occurred.
-        * cc1: warning: command line option "-std=c++0x" is valid for C++/ObjC++ but not for C
 
 ## Community
 
