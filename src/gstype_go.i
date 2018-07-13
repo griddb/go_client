@@ -386,6 +386,23 @@ type swig_GetStoreListArg struct {
 }
 %}
 
+%#if GS_COMPATIBILITY_SUPPORT_3_5
+// represent for []interface{}{string, int , int}
+%fragment("cstringintint", "header") %{
+struct swig_stringintint {
+	_gostring_ columnName;
+	long mType;
+	long options;
+};
+%}
+%fragment("gostringintint", "go_runtime") %{
+type swig_stringintint struct {
+	columnName string;
+	mType int;
+	options int;
+}
+%}
+%#else
 // represent for []interface{}{string, int , int}
 %fragment("cstringintint", "header") %{
 struct swig_stringintint {
@@ -401,6 +418,7 @@ type swig_stringintint struct {
 //	options int;
 }
 %}
+%#endif
 
 // represent for map[string]string
 %fragment("cstringstring", "header") %{
@@ -905,6 +923,18 @@ static bool convertFieldToObject(swig_interface *map, griddb::Field *field) {
 %typemap(gotype) (const GSColumnInfo* props, int propsCount) %{[][]interface{}%}
 %typemap(imtype) (const GSColumnInfo* props, int propsCount) %{[]swig_stringintint%}
 %go_import("fmt")
+%#if GS_COMPATIBILITY_SUPPORT_3_5
+%typemap(goin, fragment="gostringintint") (const GSColumnInfo* props, int propsCount) %{
+	$result = make([]swig_stringintint, len($input), len($input))
+	for i := range $input {
+		$result[i].columnName = $input[i][0].(string)
+		$result[i].mType      = $input[i][1].(int)
+		if(len($input[i]) >= 3) {
+			$result[i].options = $input[i][2].(int)
+		}
+	}
+%}
+%#else
 %typemap(goin, fragment="gostringintint") (const GSColumnInfo* props, int propsCount) %{
 	$result = make([]swig_stringintint, len($input), len($input))
 	for i := range $input {
@@ -915,6 +945,7 @@ static bool convertFieldToObject(swig_interface *map, griddb::Field *field) {
 //		}
 	}
 %}
+%#endif
 %typemap(in, fragment="cstringintint") (const GSColumnInfo* props, int propsCount)
 (swig_stringintint *map, GSChar *tmpStr) %{
 	map = (swig_stringintint *)$input.array;
@@ -1662,6 +1693,19 @@ static bool convertFieldToObject(swig_interface *map, griddb::Field *field) {
 	}
 	$result.array = tmpColumnList;
 %}
+%#if GS_COMPATIBILITY_SUPPORT_3_5
+%typemap(goout, fragment="gostringintint") (ColumnInfoList) %{
+	var slice []swig_stringintint
+	slice = $1
+	$result = make([][]interface{}, len(slice))
+	for i := range slice {
+		$result[i] = make([]interface{}, 2)
+		$result[i][0] = swigCopyString(slice[i].columnName)
+		$result[i][1] = slice[i].mType
+		$result[i][2] = slice[i].options
+	}
+%}
+%#else
 %typemap(goout, fragment="gostringintint") (ColumnInfoList) %{
 	var slice []swig_stringintint
 	slice = $1
@@ -1675,3 +1719,4 @@ static bool convertFieldToObject(swig_interface *map, griddb::Field *field) {
 //#endif
 	}
 %}
+%#endif
