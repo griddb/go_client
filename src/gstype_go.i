@@ -678,8 +678,8 @@ static bool convertFieldToObject(swig_interface *map, griddb::Field *field) {
 		case GS_TYPE_BLOB:
 			map->asBlob.len = field->value.asBlob.size;
 			map->asBlob.cap = field->value.asBlob.size;
-			map->asBlob.array = malloc(sizeof(GSChar) * map->asBlob.len + 1);
-			memset(map->asBlob.array, 0x0, sizeof(GSChar) * map->asBlob.len + 1);
+			map->asBlob.array = malloc(sizeof(GSChar) * map->asBlob.len);
+			memset(map->asBlob.array, 0x0, sizeof(GSChar) * map->asBlob.len);
 			memcpy(map->asBlob.array, field->value.asBlob.data, map->asBlob.len);
 			map->type = GS_TYPE_BLOB;
 			return true;
@@ -736,8 +736,8 @@ static bool convertFieldToObject(swig_interface *map, griddb::Field *field) {
 %fragment("convertObjectToField", "header", fragment = "cinterface") {
 	static bool convertObjectToField(griddb::Field &field, swig_interface *map) {
 		if (map->type == GS_TYPE_STRING) {
-			GSChar *tmp = (GSChar*)malloc(sizeof(GSChar) * map->asString.n);
-			memset(tmp, 0x0, sizeof(GSChar) * map->asString.n);
+			GSChar *tmp = (GSChar*)malloc(sizeof(GSChar) * map->asString.n + 1);
+			memset(tmp, 0x0, sizeof(GSChar) * map->asString.n + 1);
 			memcpy(tmp, map->asString.p, map->asString.n);
 			field.value.asString = (const GSChar*)tmp;
 			field.type = GS_TYPE_STRING;
@@ -761,8 +761,8 @@ static bool convertFieldToObject(swig_interface *map, griddb::Field *field) {
 			field.type = GS_TYPE_TIMESTAMP;
 		} else if (map->type == GS_TYPE_BLOB) {
 			field.value.asBlob.size = map->asBlob.len;
-			void *tmp = malloc(sizeof(GSChar) * map->asBlob.len + 1);
-			memset(tmp, 0x0 , sizeof(GSChar) * map->asBlob.len + 1);
+			void *tmp = malloc(sizeof(GSChar) * map->asBlob.len);
+			memset(tmp, 0x0 , sizeof(GSChar) * map->asBlob.len);
 			memcpy(tmp, map->asBlob.array, field.value.asBlob.size);
 			field.value.asBlob.data = (const void*)tmp;
 			field.type = GS_TYPE_BLOB;
@@ -1641,8 +1641,8 @@ static bool convertFieldToObject(swig_interface *map, griddb::Field *field) {
 		if(length < 3) {
 			printf("Expect column info has 3 elements");
 		}
-		GSChar *tmp = (GSChar*)malloc(sizeof(GSChar) * tmpMap[0].asString.n);
-        memset(tmp, 0x0, sizeof(GSChar) * tmpMap[0].asString.n);
+		GSChar *tmp = (GSChar*)malloc(sizeof(GSChar) * tmpMap[0].asString.n + 1);
+        memset(tmp, 0x0, sizeof(GSChar) * tmpMap[0].asString.n + 1);
         memcpy(tmp, tmpMap[0].asString.p, tmpMap[0].asString.n);
 		tmpColumnInfo[i].name = tmp;
 		tmpColumnInfo[i].type = tmpMap[1].asInteger;
@@ -1651,8 +1651,8 @@ static bool convertFieldToObject(swig_interface *map, griddb::Field *field) {
 		if (length < 2) {
 			printf("Expect column info has 2 elements");
 		}
-		GSChar *tmp = (GSChar*)malloc(sizeof(GSChar) * tmpMap[0].asString.n);
-        memset(tmp, 0x0, sizeof(GSChar) * tmpMap[0].asString.n);
+		GSChar *tmp = (GSChar*)malloc(sizeof(GSChar) * tmpMap[0].asString.n + 1);
+        memset(tmp, 0x0, sizeof(GSChar) * tmpMap[0].asString.n + 1);
         memcpy(tmp, tmpMap[0].asString.p, tmpMap[0].asString.n);
 		tmpColumnInfo[i].name = tmp;
 		tmpColumnInfo[i].type = tmpMap[1].asInteger;
