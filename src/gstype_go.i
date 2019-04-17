@@ -1442,7 +1442,7 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             delete [] tmp;
             SWIG_exception(SWIG_ValueError, "Get blob from Go code is failed");
         }
-        GSBlob blobValTmp = {array_length.r0, (const void*)tmp};
+        GSBlob blobValTmp = {static_cast<size_t>(array_length.r0), (const void*)tmp};
         GSResult ret = gsSetRowFieldByBlob(row, no, &blobValTmp);
         if (ret != GS_RESULT_OK) {
             SWIG_exception(SWIG_ValueError, "Can not set blob value for row");
