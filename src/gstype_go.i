@@ -527,6 +527,9 @@ namespace griddb {
 %rename(Wrapped_get_container) Store::get_container;
 %rename(Wrapped_drop_container) Store::drop_container;
 %rename(Wrapped_fetch_all) Store::fetch_all;
+%rename(Wrapped_create_row_key_predicate) Store::create_row_key_predicate;
+%rename(Wrapped_get_container_info) Store::get_container_info;
+%rename(Wrapped_partition_info) Store::partition_info;
 }
 %insert(go_wrapper) %{
 type Store interface {
@@ -539,6 +542,24 @@ type Store interface {
     FetchAll(listQuery []Query) (err error)
     SetTimestampOutput(isFloat bool)
     GetTimestampOutput() (isFloat bool)
+    CreateRowKeyPredicate(mType int) (predicate RowKeyPredicate, err error)
+    GetContainerInfo(conName string) (containerInfo ContainerInfo, err error)
+    PartitionInfo() (partitionController PartitionController, err error)
+}
+func (e SwigcptrWrapped_Store) PartitionInfo() (partitionController PartitionController, err error) {
+    defer catch(&err)
+    partitionController = e.Wrapped_partition_info().(PartitionController)
+    return
+}
+func (e SwigcptrWrapped_Store) GetContainerInfo(conName string) (containerInfo ContainerInfo, err error) {
+    defer catch(&err)
+    containerInfo = e.Wrapped_get_container_info(conName).(ContainerInfo)
+    return
+}
+func (e SwigcptrWrapped_Store) CreateRowKeyPredicate(mType int) (predicate RowKeyPredicate, err error) {
+    defer catch(&err)
+    predicate = e.Wrapped_create_row_key_predicate(mType).(RowKeyPredicate)
+    return
 }
 func (e SwigcptrWrapped_Store) SetTimestampOutput(isFloat bool) {
     e.SetTimestamp_output_with_float(isFloat)
