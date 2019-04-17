@@ -1,90 +1,114 @@
 package main
 
 import(
-	"github.com/griddb/go_client"
-	"fmt"
-	"os"
-	"strconv"
+    "github.com/griddb/go_client"
+    "fmt"
+    "os"
+    "strconv"
 )
 
 func main() {
-	factory := griddb_go.StoreFactoryGetInstance()
+    factory := griddb_go.StoreFactoryGetInstance()
+    defer griddb_go.DeleteStoreFactory(factory)
 
-	blob := []byte{65, 66, 67, 68, 69, 70, 71, 72, 73, 74}
+    blob   := []byte{65, 66, 67, 68, 69, 70, 71, 72, 73, 74}
+    update := true
 
-	// Get GridStore object
-	port, err := strconv.Atoi(os.Args[2])
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(2)
-	}
-	gridstore := factory.GetStore(map[string]interface{} {
-											"host"        :os.Args[1],
-											"port"        :port,
-											"cluster_name":os.Args[3],
-											"username"    :os.Args[4],
-											"password"    :os.Args[5],
-										})
+    // Get GridStore object
+    port, err := strconv.Atoi(os.Args[2])
+    if (err != nil) {
+        fmt.Println(err)
+        os.Exit(2)
+    }
+    gridstore, err := factory.GetStore(map[string]interface{} {
+        "host": os.Args[1],
+        "port": port,
+        "cluster_name": os.Args[3],
+        "username": os.Args[4],
+        "password": os.Args[5]})
+    if (err != nil) {
+        fmt.Println(err)
+        panic("err get store")
+    }
+    defer griddb_go.DeleteStore(gridstore)
 
-	// Create Collection
-	conInfo, err := griddb_go.CreateContainerInfo("col01",
-												[][]interface{}{
-													{"name", griddb_go.TYPE_STRING},
-													{"status" ,griddb_go.TYPE_BOOL},
-													{"count", griddb_go.TYPE_LONG},
-													{"lob", griddb_go.TYPE_BLOB}},
-													griddb_go.CONTAINER_COLLECTION,
-				 								true)
-	if(err != nil) {
-		fmt.Println("Create containerInfo failed")
-	}
-	col, err := gridstore.PutContainer(conInfo, false)
-	if(err != nil) {
-		fmt.Println("put container failed")
-	}
-	
-	// Change auto commit mode to false
-	col.SetAutoCommit(false)
+    conInfo, err := griddb_go.CreateContainerInfo(map[string]interface{} {
+        "name": "col01",
+        "column_info_list":[][]interface{}{
+            {"name", griddb_go.TYPE_STRING},
+            {"status", griddb_go.TYPE_BOOL},
+            {"count", griddb_go.TYPE_LONG},
+            {"lob", griddb_go.TYPE_BLOB}},
+        "type": griddb_go.CONTAINER_COLLECTION,
+        "row_key": true})
+    if (err != nil) {
+        fmt.Println("Create containerInfo failed, err:", err)
+        panic("err CreateContainerInfo")
+    }
+    defer griddb_go.DeleteContainerInfo(conInfo)
 
-	// Set an index on the Row-key Column
-	col.CreateIndex("name", griddb_go.INDEX_DEFAULT)
+    gridstore.DropContainer("col01")
+    col, err := gridstore.PutContainer(conInfo)
+    if (err != nil) {
+        fmt.Println("put container failed, err:", err)
+        panic("err PutContainer")
+    }
+    defer griddb_go.DeleteContainer(col)
 
-	// Set an index on the Column
-	col.CreateIndex("count", griddb_go.INDEX_DEFAULT)
+    // Change auto commit mode to false
+    col.SetAutoCommit(false)
 
-	//Put row: RowKey is "name01"
-	row1 := []interface{}{"name01", false, 1, blob}
-	err = col.Put(row1)
-	//Remove row with RowKey "name01"
-	col.Remove("name01")
+    // Set an index on the Row-key Column
+    col.CreateIndex(map[string]interface{}{"column_name": "name", "index_type": griddb_go.INDEX_FLAG_DEFAULT})
+    // Set an index on the Column
+    col.CreateIndex(map[string]interface{}{"column_name": "count", "index_type": griddb_go.INDEX_FLAG_DEFAULT})
 
-	//Put row: RowKey is "name02"
-	row2 := []interface{}{"name02", false, 1, blob}
-	err = col.Put(row2)
+    //Put row: RowKey is "name01"
+    err = col.Put([]interface{}{"name01", false, 1, blob})
+    if (err != nil) {
+        fmt.Println("put row name01 fail, err:", err)
+    }
+    // Remove row with RowKey "name01"
+    col.Remove("name01")
 
-	col.Commit();
+    //Put row: RowKey is "name02"
+    err = col.Put([]interface{}{"name02", false, 1, blob})
+    if (err != nil) {
+        fmt.Println("put row name02 fail, err:", err)
+    }
+    col.Commit()
 
-	// Create normal query
-	query, err := col.Query("select * where name = 'name02'")
-	if(err != nil) {
-		fmt.Println("create query failed")
-	}
-	//Execute query
-	rs, err := query.Fetch(true)
-	if(err != nil) {
-		fmt.Println("create rs from query failed")
-	}
-	for rs.HasNext(){
-		// Update row
-		rrow, err := rs.NextRow()
-		if(err != nil) {
-			fmt.Println("NextRow from rs failed")
-		}
-		fmt.Println("Person: name=", rrow[0]," status=", rrow[1]," count=", rrow[2]," lob=", rrow[3])
-		tmpRow := []interface{}{"name02", false, 2, blob}
-		rs.Update(tmpRow)
-	}
+    // Create normal query
+    query, err := col.Query("select *")
+    if (err != nil) {
+        fmt.Println("create query failed, err:", err)
+        panic("err create query")
+    }
+    defer griddb_go.DeleteQuery(query)
 
-	// End transaction
-	col.Commit()
+    // Execute query
+    rs, err := query.Fetch(update)
+    if (err != nil) {
+        fmt.Println("fetch failed, err:", err)
+        panic("err create rowset")
+    }
+    defer griddb_go.DeleteRowSet(rs)
+    for rs.HasNext() {
+        rrow, err := rs.NextRow()
+        if (err != nil) {
+            fmt.Println("NextRow from rs failed, err:", err)
+            panic("err NextRow from rowset")
+        }
+
+        rrow[2] = rrow[2].(int) + 1
+        fmt.Println("Person: name=", rrow[0]," status=", rrow[1]," count=", rrow[2]," lob=", rrow[3])
+
+        // Update row
+        err = rs.Update(rrow)
+        if (err != nil) {
+            fmt.Println("Update row from rs failed, err:", err)
+        }
+    }
+    // End transaction
+    col.Commit()
 }
