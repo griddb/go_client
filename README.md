@@ -33,19 +33,21 @@ Install SWIG as below.
     $ make
     $ make install
 
+Install Go and GridDB C Client.
+
 Set LIBRARY_PATH. 
 
     export LIBRARY_PATH=$LIBRARY_PATH:<C client library file directory path>
 
 ### Build and Run 
 
-    1. Execute the command on project directory.
+    1. Set the GOPATH variable for griddb Go module files.
 
-    $ make
+        $ export GOPATH=$GOPATH:<installed directory path>
 
-    2. Set the GOPATH variable for griddb Go module files.
-    
-    $ export GOPATH=$GOPATH:<installed directory path>
+    2. Execute the command on project directory.
+
+        $ make
 
     3. Import "github.com/griddb/go_client" in Go.
 
@@ -53,11 +55,9 @@ Set LIBRARY_PATH.
 
 GridDB Server need to be started in advance.
 
-    1. Set LD_LIBRARY_PATH and GODEBUG
+    1. Set LD_LIBRARY_PATH
 
         export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:<C client library file directory path>
-
-        export GODEBUG=cgocheck=0
 
     2. The command to run sample
 
