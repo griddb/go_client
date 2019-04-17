@@ -14,7 +14,7 @@ const (
 )
 const (
     UTC_TIMESTAMP_MILI_MAX = 253402300799999
-    MILI_SECOND       = 1000
+    MILI_SECOND            = 1000
 )
 const (
     TYPE_OPTION_NULLABLE = 2
@@ -22,12 +22,15 @@ const (
 )
 const (
     INDEX_FLAG_DEFAULT = -1
-    INDEX_FLAG_TREE = 1
-    INDEX_FLAG_HASH = 2
+    INDEX_FLAG_TREE    = 1
+    INDEX_FLAG_HASH    = 2
     INDEX_FLAG_SPATIAL = 4
 )
 const (
-    FETCH_OPTION_LIMIT_MAX = 2147483647
+    FETCH_OPTION_LIMIT_MAX  = 2147483647
+    FETCH_LIMIT             = 0
+    FETCH_SIZE              = 1
+    FETCH_PARTIAL_EXECUTION = 2
 )
 const (
     CONTAINER_COLLECTION = iota
@@ -60,9 +63,6 @@ const (
     TYPE_DOUBLE_ARRAY
     TYPE_TIMESTAMP_ARRAY
     TYPE_NULL = -1
-)
-const (
-    FETCH_LIMIT = iota
 )
 const (
     TIME_UNIT_YEAR = iota
