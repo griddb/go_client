@@ -83,8 +83,10 @@ Please refer to the following files for more detailed information.
 - [Go Client API Reference](https://griddb.github.io/go_client/GoAPIReference.htm)
 
 Note:
-1. The current API might be changed in the next version. e.g. ContainerInfo()
-2. When you use GridDB V3.0 CE, please replace gridstore.h with gridstoreForV3.0.h on include/ folder and build sources.
+1. After calling a method getting GridDB object, user must call DeleteClassName() function for each object.
+   If possible, we recommend to use a defer of the DeleteClassName call like sample1.go.
+2. The current API might be changed in the next version. e.g. ContainerInfo()
+3. When you use GridDB V3.0 CE, please replace gridstore.h with gridstoreForV3.0.h on include/ folder and build sources.
 
 ## Community
 
