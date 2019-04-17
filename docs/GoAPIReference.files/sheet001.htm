@@ -16,8 +16,8 @@ xmlns="http://www.w3.org/TR/REC-html40">
 	mso-displayed-thousand-separator:"\,";}
 @page
 	{margin:.75in .7in .75in .7in;
-	mso-header-margin:.3in;
-	mso-footer-margin:.3in;}
+	mso-header-margin:.51in;
+	mso-footer-margin:.51in;}
 ruby
 	{ruby-align:left;}
 rt
@@ -26,8 +26,8 @@ rt
 	font-weight:400;
 	font-style:normal;
 	text-decoration:none;
-	font-family:"ＭＳ Ｐゴシック", monospace;
-	mso-font-charset:128;
+	font-family:Calibri, sans-serif;
+	mso-font-charset:0;
 	mso-char-type:katakana;
 	display:none;}
 -->
@@ -56,64 +56,129 @@ else
 
 <body link="#0563C1" vlink="#954F72">
 
-<table border=0 cellpadding=0 cellspacing=0 width=840 style='border-collapse:
- collapse;table-layout:fixed;width:630pt'>
- <col width=229 style='mso-width-source:userset;mso-width-alt:7328;width:172pt'>
- <col width=611 style='mso-width-source:userset;mso-width-alt:19552;width:458pt'>
- <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl67 width=229 style='height:13.5pt;width:172pt'>class</td>
-  <td class=xl87 width=611 style='border-left:none;width:458pt'>description</td>
+<table border=0 cellpadding=0 cellspacing=0 width=1031 style='border-collapse:
+ collapse;table-layout:fixed;width:774pt'>
+ <col width=200 style='width:150pt'>
+ <col width=465 style='mso-width-source:userset;mso-width-alt:17005;width:349pt'>
+ <col width=366 style='mso-width-source:userset;mso-width-alt:13385;width:275pt'>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl79 width=200 style='height:15.0pt;width:150pt'>type</td>
+  <td class=xl79 width=465 style='border-left:none;width:349pt'>description</td>
+  <td class=xl79 width=366 style='border-left:none;width:275pt'>Delete function
+  for each object</td>
  </tr>
- <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl70 style='height:13.5pt;border-top:none'>AggregationResult</td>
-  <td class=xl75 width=611 style='border-top:none;border-left:none;width:458pt'>Stores
-  the result of an aggregation operation</td>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl80 width=200 style='height:15.0pt;border-top:none;
+  width:150pt'>AggregationResult</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Stores
+  the result of an aggregation operation<ruby><font class="font23"><rt
+  class=font23></rt></font></ruby></td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteAggregationResult(object
+  AggregationResult)</td>
  </tr>
- <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl70 style='height:13.5pt;border-top:none'>Container</td>
-  <td class=xl75 width=611 style='border-top:none;border-left:none;width:458pt'>Provides
-  management functions for sets of row having same type</td>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl80 width=200 style='height:15.0pt;border-top:none;
+  width:150pt'>Container</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Provides
+  management functions for sets of row having same type<ruby><font
+  class="font23"><rt class=font23></rt></font></ruby></td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteContainer(object
+  Container)</td>
  </tr>
- <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl70 style='height:13.5pt;border-top:none'>PartitionController</td>
-  <td class=xl75 width=611 style='border-top:none;border-left:none;width:458pt'>Controller
-  for acquiring and processing the partition status</td>
+ <tr height=40 style='height:30.0pt'>
+  <td height=40 class=xl107 width=200 style='height:30.0pt;border-top:none;
+  width:150pt'>QueryAnalysisEntry</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Represents
+  one of information entries composing a query plan and the results of
+  analyzing a query operation.</td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteQueryAnalysisEntry(object
+  QueryAnalysisEntry)</td>
  </tr>
- <tr height=36 style='height:27.0pt'>
-  <td height=36 class=xl70 style='height:27.0pt;border-top:none'>Query</td>
-  <td class=xl75 width=611 style='border-top:none;border-left:none;width:458pt'>Provides
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl80 width=200 style='height:15.0pt;border-top:none;
+  width:150pt'>PartitionController</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Controller
+  for acquiring and processing the partition status<ruby><font class="font23"><rt
+  class=font23></rt></font></ruby></td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeletePartitionController(object
+  PartitionController)</td>
+ </tr>
+ <tr height=60 style='height:45.0pt'>
+  <td height=60 class=xl80 width=200 style='height:45.0pt;border-top:none;
+  width:150pt'>Query</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Provides
   the functions of holding the information about a query related to a specific
-  Container, specifying the options for fetching and retrieving the result</td>
+  Container, specifying the options for fetching and retrieving the result<ruby><font
+  class="font23"><rt class=font23></rt></font></ruby></td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteQuery(object
+  Query)</td>
  </tr>
- <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl70 style='height:13.5pt;border-top:none'>RowSet</td>
-  <td class=xl75 width=611 style='border-top:none;border-left:none;width:458pt'>Manages
-  a set of Rows obtained by a query</td>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl107 width=200 style='height:15.0pt;border-top:none;
+  width:150pt'>RowKeyPredicate</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Represents
+  the condition that a row key satisfies</td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteRowKeyPredicate(object
+  RowKeyPredicate)</td>
  </tr>
- <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl70 style='height:13.5pt;border-top:none'>Store</td>
-  <td class=xl75 width=611 style='border-top:none;border-left:none;width:458pt'>Provides
-  functions to manipulate the entire data managed in one GridDB system</td>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl80 width=200 style='height:15.0pt;border-top:none;
+  width:150pt'>RowSet</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Manages
+  a set of Rows obtained by a query<ruby><font class="font23"><rt class=font23></rt></font></ruby></td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteRowSet(object
+  RowSet)</td>
  </tr>
- <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl70 style='height:13.5pt;border-top:none'>StoreFactory</td>
-  <td class=xl75 width=611 style='border-top:none;border-left:none;width:458pt'>Manages
-  a Store instance</td>
+ <tr height=40 style='height:30.0pt'>
+  <td height=40 class=xl80 width=200 style='height:30.0pt;border-top:none;
+  width:150pt'>Store</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Provides
+  functions to manipulate the entire data managed in one GridDB system<ruby><font
+  class="font23"><rt class=font23></rt></font></ruby></td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteStore(object
+  Store)</td>
  </tr>
- <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl70 style='height:13.5pt;border-top:none'>ContainerInfo</td>
-  <td class=xl75 width=611 style='border-top:none;border-left:none;width:458pt'>Represents
-  the information about a Container</td>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl80 width=200 style='height:15.0pt;border-top:none;
+  width:150pt'>StoreFactory</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Manages
+  a Store instance<ruby><font class="font23"><rt class=font23></rt></font></ruby></td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteStoreFactory(object
+  StoreFactory)</td>
  </tr>
- <tr height=18 style='height:13.5pt'>
-  <td height=18 class=xl70 style='height:13.5pt;border-top:none'>ExpirationInfo</td>
-  <td class=xl75 width=611 style='border-top:none;border-left:none;width:458pt'>Represents
-  the information about a expiration</td>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl80 width=200 style='height:15.0pt;border-top:none;
+  width:150pt'>ContainerInfo</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Represents
+  the information about a Container<ruby><font class="font23"><rt class=font23></rt></font></ruby></td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteContainerInfo(object
+  ContainerInfo)</td>
+ </tr>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl80 width=200 style='height:15.0pt;border-top:none;
+  width:150pt'>ExpirationInfo</td>
+  <td class=xl74 width=465 style='border-top:none;border-left:none;width:349pt'>Represents
+  the information about a expiration<ruby><font class="font23"><rt
+  class=font23></rt></font></ruby></td>
+  <td class=xl81 width=366 style='border-top:none;border-left:none;width:275pt'>DeleteExpirationInfo(object
+  ExpirationInfo)</td>
+ </tr>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 colspan=3 style='height:15.0pt;mso-ignore:colspan'></td>
+ </tr>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl87 style='height:15.0pt'>Note:</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
+ </tr>
+ <tr height=20 style='height:15.0pt'>
+  <td height=20 class=xl108 style='height:15.0pt'>Green means additional type.</td>
+  <td colspan=2 style='mso-ignore:colspan'></td>
  </tr>
  <![if supportMisalignedColumns]>
  <tr height=0 style='display:none'>
-  <td width=229 style='width:172pt'></td>
-  <td width=611 style='width:458pt'></td>
+  <td width=200 style='width:150pt'></td>
+  <td width=465 style='width:349pt'></td>
+  <td width=366 style='width:275pt'></td>
  </tr>
  <![endif]>
 </table>
