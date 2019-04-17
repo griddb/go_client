@@ -688,6 +688,22 @@ func (e SwigcptrWrapped_RowKeyPredicate) SetDistinctKeys(keys []interface{}) (er
     return
 }
 %}
+%typemap(gotype) (griddb::TimestampUtils*) %{TimestampUtils%}
+%typemap(imtype) (griddb::TimestampUtils*) %{SwigcptrWrapped_TimestampUtils%}
+namespace griddb {
+%rename(Wrapped_TimestampUtils) TimestampUtils;
+}
+%insert(go_wrapper) %{
+type TimestampUtils interface {
+    Wrapped_TimestampUtils
+}
+func GetTimeMillis(mTime time.Time) (mResult int) {
+    second     := mTime.Unix()
+    miliSecond := mTime.Nanosecond() / 1000000
+    mResult     = int(second * 1000) + miliSecond
+    return
+}
+%}
 
 %fragment("goStructs", "go_runtime") %{
 // represent for map[string]string
