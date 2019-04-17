@@ -8,10 +8,10 @@ CPPFLAGS = -fPIC -std=c++0x -g -O2
 INCLUDES = -Iinclude -Isrc
 
 INCLUDES_GO = $(INCLUDES)
-CPPFLAGS_GO = $(CPPFLAGS) $(INCLUDES_GO)
+CPPFLAGS_GO = $(CPPFLAGS) $(INCLUDES_GO) -I_obj
 
 PROGRAM = griddb_go.so
-EXTRA = griddb_go.go
+EXTRA = griddb_go.go _cgo_export.o
 
 SOURCES = 	  src/TimeSeriesProperties.cpp \
 		  src/ContainerInfo.cpp			\
@@ -36,11 +36,12 @@ SWIG_GO_SOURCES     = src/griddb_go.cxx
 OBJS = $(SOURCES:.cpp=.o)
 SWIG_GO_OBJS = $(SWIG_GO_SOURCES:.cxx=.o)
 
-$(SWIG_GO_SOURCES) : $(SWIG_DEF)
+$(SWIG_GO_SOURCES) : _cgo_export.c $(SWIG_DEF)
 	mkdir -p src/github.com/griddb
 	ln -s `pwd`/src `pwd`/src/github.com/griddb/go_client
-	$(SWIG) -outdir src/github.com/griddb/go_client/ -o $@ -c++ -go -cgo -use-shlib -intgosize 64 $<
-	sed -i "/^import \"C\"/i// #cgo CXXFLAGS: -std=c++0x -I$$\{SRCDIR\}/../include\n// #cgo LDFLAGS: -L$$\{SRCDIR\}/../libs -lrt -lgridstore" src/griddb_go.go
+	$(SWIG) -outdir src/github.com/griddb/go_client/ -o $@ -c++ -go -cgo -use-shlib -intgosize 64 $(SWIG_DEF)
+	sed -i "/^\#undef intgo/iextern void freeFieldDataForRow(uintptr_t data);\nextern void freeColumnInfo(uintptr_t data);\nextern void freeQueryEntryGet(uintptr_t data);\nextern void freePartitionConName(uintptr_t data);\nextern void freeStoreMultiGet(uintptr_t data);" src/griddb_go.go
+	sed -i "/^import \"C\"/i// #cgo CXXFLAGS: -std=c++0x -I$$\{SRCDIR\}/../include\n// #cgo LDFLAGS: -L$$\{SRCDIR\}/../libs -lrt -lgridstore\n// #include <stdlib.h>" src/griddb_go.go
 
 .cpp.o:
 	$(CXX) $(CPPFLAGS) -c -o $@ $(INCLUDES) $<
@@ -49,12 +50,16 @@ $(SWIG_GO_OBJS): $(SWIG_GO_SOURCES)
 	$(CXX) $(CPPFLAGS_GO) -c -o $@ -lstdc++ $<
 
 griddb_go.so: $(OBJS) $(SWIG_GO_OBJS)
-	$(CXX) -shared  -o $@ $(OBJS) $(SWIG_GO_OBJS) $(LDFLAGS) $(LDFLAGS_GO)
+	$(CXX) -shared  -o $@ $(OBJS) src/_cgo_export.o $(SWIG_GO_OBJS) $(LDFLAGS) $(LDFLAGS_GO)
 	go install github.com/griddb/go_client
 
+_cgo_export.c: src/callBack.go
+	go tool cgo src/callBack.go
+	$(CXX) -shared  -o src/_cgo_export.o _obj/_cgo_export.c $(CPPFLAGS)
+	
 clean:
 	rm -rf $(OBJS) $(SWIG_GO_OBJS)
 	rm -rf $(SWIG_GO_SOURCES)
 	rm -rf $(PROGRAM) $(EXTRA)
-	rm -rf src/github.com
+	rm -rf src/github.com _obj src/_cgo_export.o
 	go clean
