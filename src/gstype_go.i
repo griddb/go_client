@@ -2428,3 +2428,8 @@ GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
     C.freeFieldDataForRow(C.uintptr_t((uintptr)(unsafe.Pointer($1))));
     *$input = tmp
 %}
+
+/**
+ * Support close method
+ */
+%typemap(gotype) (GSBool allRelated) %{bool%}
