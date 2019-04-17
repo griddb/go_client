@@ -90,6 +90,44 @@ namespace griddb {
 type ContainerInfo interface {
     Wrapped_ContainerInfo
 }
+func StoreFactoryGetInstance() (factory StoreFactory) {
+    factory = Wrapped_StoreFactoryGetInstance()
+    return
+}
+func DeleteStoreFactory(factory StoreFactory) {
+    DeleteWrapped_StoreFactory(Wrapped_StoreFactory(factory))
+}
+func DeleteStore(store Store) {
+    DeleteWrapped_Store(Wrapped_Store(store))
+}
+func DeleteContainer(col Container) {
+    DeleteWrapped_Container(Wrapped_Container(col))
+}
+func DeleteContainerInfo(colInfo ContainerInfo) {
+    DeleteWrapped_ContainerInfo(Wrapped_ContainerInfo(colInfo))
+}
+func DeleteExpirationInfo(expiration ExpirationInfo) {
+    DeleteWrapped_ExpirationInfo(Wrapped_ExpirationInfo(expiration))
+}
+func DeleteAggregationResult(agg AggregationResult) {
+    DeleteWrapped_AggregationResult(Wrapped_AggregationResult(agg))
+}
+func DeleteQueryAnalysisEntry(entry QueryAnalysisEntry) {
+    DeleteWrapped_QueryAnalysisEntry(Wrapped_QueryAnalysisEntry(entry))
+}
+func DeletePartitionController(partition PartitionController) {
+    DeleteWrapped_PartitionController(Wrapped_PartitionController(partition))
+}
+func DeleteQuery(query Query) {
+    DeleteWrapped_Query(Wrapped_Query(query))
+}
+func DeleteRowKeyPredicate(predicate RowKeyPredicate) {
+    DeleteWrapped_RowKeyPredicate(Wrapped_RowKeyPredicate(predicate))
+}
+func DeleteRowSet(rowset RowSet) {
+    DeleteWrapped_RowSet(Wrapped_RowSet(rowset))
+}
+
 func CreateContainerInfo(a ...interface{}) (result ContainerInfo, err error) {
     defer catch(&err)
     if (len(a) == 1 && reflect.ValueOf(a[0]).Kind() == reflect.Map) {
@@ -149,6 +187,7 @@ func CreateContainerInfo(a ...interface{}) (result ContainerInfo, err error) {
     return
 }
 %}
+
 %typemap(imtype) (griddb::ExpirationInfo*) %{SwigcptrWrapped_ExpirationInfo%}
 namespace griddb {
 %rename(Wrapped_ExpirationInfo) ExpirationInfo;
