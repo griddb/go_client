@@ -586,7 +586,9 @@ func (e SwigcptrWrapped_Store) MultiPut(rowContainerList map[string][][]interfac
 }
 func (e SwigcptrWrapped_Store) MultiGet(predicate map[string]RowKeyPredicate) (mapRowList map[string][][]interface{}, err error) {
     defer catch(&err)
-    e.Wrapped_multi_get(predicate, &mapRowList)
+    var tmp interface{}
+    e.Wrapped_multi_get(predicate, &tmp)
+    mapRowList = tmp.(map[string][][]interface{})
     return
 }
 func (e SwigcptrWrapped_Store) PutContainer(a ...interface{}) (container Container, err error) {
@@ -2039,6 +2041,10 @@ int result, uintptr_t *tmpData, int conNum, int i, int j, int k) %{
                         for (j = 0; j < i; j++) {
                             gsCloseRow(&$1[conNum][j]);
                         }
+                        for (j = 0; j < conData->listSize; j++) {
+                            delete [] (uintptr_t *)sliceRows[j].data;
+                        }
+                        delete sliceRows;
                         for (j = 0; j <= conNum; j++) {
                             delete [] $1[j];
                         }
@@ -2051,6 +2057,10 @@ int result, uintptr_t *tmpData, int conNum, int i, int j, int k) %{
                         delete [] $1;
                         delete [] $2;
                         delete [] $3;
+                        for (j = 0; j < conData->listSize; j++) {
+                            delete [] (uintptr_t *)sliceRows[j].data;
+                        }
+                        delete sliceRows;
                         SWIG_exception(SWIG_ValueError, "column number for store multi put row is not correct");
                     }
                     // set data for each field of row
@@ -2058,7 +2068,9 @@ int result, uintptr_t *tmpData, int conNum, int i, int j, int k) %{
                     for (j = 0; j < colNum; j++) {
                         setRowFromObject($1[conNum][i], j, fieldAddrs[j], typeList[j]);
                     }
+                    delete [] (uintptr_t *)sliceRows[i].data;
                 }
+                delete sliceRows;
                 // delete container after setting data for list of row
                 delete tmpContainer;
             }
@@ -2141,7 +2153,7 @@ GSChar *tmpStr, uintptr_t *tmpData, int i) %{
     $5 = &tmpOrderFromInput;
 }
 %typemap(gotype) (GSContainerRowEntry **entryList, size_t* containerCount,
-int **colNumList, GSType*** typeList, int **orderFromInput) %{*map[string][][]interface{}%}
+int **colNumList, GSType*** typeList, int **orderFromInput) %{*interface{}%}
 %typemap(imtype) (GSContainerRowEntry **entryList, size_t* containerCount,
 int **colNumList, GSType*** typeList, int **orderFromInput) %{*[]swig_ContainerListRow%}
 %typemap(argout)
@@ -2162,7 +2174,7 @@ GSRow *tmpRow, GSContainerRowEntry *tmpEntryList) %{
         tmpEntry[i].containerName.p = tmpStr;
         // set data for each row
         tmpEntry[i].listSize = tmpEntryList->rowCount;
-        tmpsliceRow          = new GoSlice();
+        tmpsliceRow          = new GoSlice[1]();
         tmpsliceRow->len     = tmpEntry[i].listSize;
         tmpsliceRow->cap     = tmpEntry[i].listSize;
         tmpListRow           = new GoSlice[tmpEntry[i].listSize]();
@@ -2178,6 +2190,7 @@ GSRow *tmpRow, GSContainerRowEntry *tmpEntryList) %{
             for (k = 0; k < (*$3)[i]; k++) {
                 convertGSRowToObjectUintptr(&tmpFields[k], tmpRow, (*$4)[i][k], k, arg1->timestamp_output_with_float);
             }
+            gsCloseRow(&tmpRow);
         }
     }
     if (*$4) {
@@ -2379,6 +2392,9 @@ GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
     }
     $1 = tmpField;
 %}
+%typemap(freearg) (const griddb::Field *keys, size_t keyCount) {
+    delete [] $1;
+}
 
 /**
  * Typemap for RowKeyPredicate.get_range()
