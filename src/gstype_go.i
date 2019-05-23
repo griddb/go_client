@@ -26,11 +26,32 @@
 namespace griddb {
 %rename(Wrapped_ContainerInfo) ContainerInfo;
 %rename(Wrapped_set_column_info_list) ContainerInfo::set_column_info_list;
+%rename(Wrapped_get_expiration_info) ContainerInfo::get_expiration_info;
+%rename(Wrapped_set_expiration_info) ContainerInfo::set_expiration_info;
 }
 %insert(go_wrapper) %{
 type ContainerInfo interface {
     Wrapped_ContainerInfo
     SetColumnInfoList(columnInfoList [][]interface{}) (err error)
+    GetExpirationInfo() (expirationInfo ExpirationInfo, err error)
+    SetExpirationInfo(expirationInfo ExpirationInfo) (err error)
+}
+func (e SwigcptrWrapped_ContainerInfo) SetExpirationInfo(expirationInfo ExpirationInfo) (err error) {
+    defer catch(&err)
+    if (expirationInfo == nil) {
+        panic("nil data is not accepted")
+    } else {
+        e.Wrapped_set_expiration_info(SwigcptrWrapped_ExpirationInfo(unsafe.Pointer(expirationInfo.Swigcptr())))
+    }
+    return
+}
+func (e SwigcptrWrapped_ContainerInfo) GetExpirationInfo() (expirationInfo ExpirationInfo, err error) {
+    defer catch(&err)
+    expirationInfo = e.Wrapped_get_expiration_info().(ExpirationInfo)
+    if (int(expirationInfo.Swigcptr()) == 0) {
+        expirationInfo = nil
+    }
+    return
 }
 func (e SwigcptrWrapped_ContainerInfo) SetColumnInfoList(columnInfoList [][]interface{}) (err error) {
     defer catch(&err)
@@ -157,11 +178,10 @@ func CreateExpirationInfo(a ...interface{}) (result ExpirationInfo, err error) {
 }
 func (e SwigcptrWrapped_ExpirationInfo) SetTime(mTime int ) (err error) {
     defer catch(&err)
-    if ((math.MinInt32 <= mTime) && (mTime <= math.MaxInt32)) {
-        e.Wrapped_set_time(mTime)
-    } else {
+    if ((math.MinInt32 > mTime) || (mTime > math.MaxInt32)) {
         panic("overflow value for set time\n")
     }
+    e.Wrapped_set_time(mTime)
     return
 }
 %}
@@ -176,10 +196,20 @@ namespace griddb {
 %rename(Wrapped_query) Container::query;
 %rename(Wrapped_create_index) Container::create_index;
 %rename(Wrapped_drop_index) Container::drop_index;
+%rename(Wrapped_abort) Container::abort;
+%rename(Wrapped_flush) Container::flush;
+%rename(Wrapped_set_auto_commit) Container::set_auto_commit;
+%rename(Wrapped_commit) Container::commit;
+%rename(Wrapped_get_type) Container::get_type;
 }
 %insert(go_wrapper) %{
 type Container interface {
     Wrapped_Container
+    GetType() (conType int, err error)
+    Abort() (err error)
+    Flush() (err error)
+    SetAutoCommit(auto bool) (err error)
+    Commit() (err error)
     Get(interface{}) (row []interface{} , err error)
     Put(row []interface{}) (err error)
     MultiPut(rowList [][]interface{}) (err error)
@@ -189,6 +219,31 @@ type Container interface {
     DropIndex(a ...interface{}) (err error)
     SetTimestampOutput(isFloat bool)
     GetTimestampOutput() (isFloat bool)
+}
+func (e SwigcptrWrapped_Container) GetType() (conType int, err error) {
+    defer catch(&err)
+    conType = e.Wrapped_get_type()
+    return
+}
+func (e SwigcptrWrapped_Container) Abort() (err error) {
+    defer catch(&err)
+    e.Wrapped_abort()
+    return
+}
+func (e SwigcptrWrapped_Container) Flush() (err error) {
+    defer catch(&err)
+    e.Wrapped_flush()
+    return
+}
+func (e SwigcptrWrapped_Container) SetAutoCommit(auto bool) (err error) {
+    defer catch(&err)
+    e.Wrapped_set_auto_commit(auto)
+    return
+}
+func (e SwigcptrWrapped_Container) Commit() (err error) {
+    defer catch(&err)
+    e.Wrapped_commit()
+    return
 }
 func (e SwigcptrWrapped_Container) SetTimestampOutput(isFloat bool) {
     e.SetTimestamp_output_with_float(isFloat)
@@ -308,6 +363,7 @@ func (e SwigcptrWrapped_Container) DropIndex(a ...interface{}) (err error) {
 namespace griddb {
 %rename(Wrapped_Query) Query;
 %rename(Wrapped_fetch) Query::fetch;
+%rename(Wrapped_get_row_set) Query::get_row_set;
 %rename(Wrapped_set_fetch_options) Query::set_fetch_options;
 }
 %insert(go_wrapper) %{
@@ -315,6 +371,15 @@ type Query interface {
     Wrapped_Query
     Fetch(a ...interface{}) (mRowSet RowSet, err error)
     SetFetchOptions(a ...interface{}) (err error)
+    GetRowSet() (mRowSet RowSet, err error)
+}
+func (e SwigcptrWrapped_Query) GetRowSet() (mRowSet RowSet, err error) {
+    defer catch(&err)
+    mRowSet = e.Wrapped_get_row_set()
+    if (int(mRowSet.Swigcptr()) == 0) {
+       mRowSet = nil
+    }
+    return
 }
 func (e SwigcptrWrapped_Query) Fetch(a ...interface{}) (mRowSet RowSet, err error) {
     defer catch(&err)
@@ -333,11 +398,11 @@ func (e SwigcptrWrapped_Query) SetFetchOptions(a ...interface{}) (err error) {
         for keywordpara := range tmpMap {
             switch(keywordpara) {
             case "limit":
-            value, ok := tmpMap[keywordpara].(int)
-            if (!ok) {
-                panic("wrong type for limit for set fetch options\n")
-            }
-            limit = value
+                value, ok := tmpMap[keywordpara].(int)
+                if (!ok) {
+                    panic("wrong type for limit for set fetch options\n")
+                }
+                limit = value
             case "partial":
                 value, ok := tmpMap[keywordpara].(bool)
                 if (!ok) {
@@ -389,12 +454,14 @@ namespace griddb {
 %rename(Wrapped_RowSet) RowSet;
 %rename(Wrapped_next_row) RowSet::next_row;
 %rename(Wrapped_update) RowSet::update;
+%rename(Wrapped_remove) RowSet::remove;
 %rename(Wrapped_get_next_query_analysis) RowSet::get_next_query_analysis;
 %rename(Wrapped_get_next_aggregation) RowSet::get_next_aggregation;
 }
 %insert(go_wrapper) %{
 type RowSet interface {
     Wrapped_RowSet
+    Remove() (err error)
     Update(row []interface{}) (err error)
     NextRow() (row []interface{} , err error)
     NextQueryAnalysis() (mQueryAnalysis QueryAnalysisEntry, err error)
@@ -408,6 +475,11 @@ func (e SwigcptrWrapped_RowSet) SetTimestampOutput(isFloat bool) {
 func (e SwigcptrWrapped_RowSet) GetTimestampOutput() (isFloat bool) {
     isFloat = e.GetTimestamp_output_with_float()
     return isFloat
+}
+func (e SwigcptrWrapped_RowSet) Remove() (err error) {
+    defer catch(&err)
+    e.Wrapped_remove()
+    return
 }
 func (e SwigcptrWrapped_RowSet) NextRow() (row []interface{}, err error) {
     defer catch(&err)
@@ -459,55 +531,27 @@ func (e SwigcptrWrapped_StoreFactory) GetStore(a ...interface{}) (ret Store, err
         for keywordpara := range tmpMap {
             switch(keywordpara) {
             case "host":
-                value, ok := tmpMap[keywordpara].(string)
-                if (!ok) {
-                    panic("wrong type for host for get store\n")
-                }
-                host = value
+                host, ok = tmpMap[keywordpara].(string)
             case "port":
-                value, ok := tmpMap[keywordpara].(int)
-                if (!ok) {
-                    panic("wrong type for port for get store\n")
-                }
-                port = value
+                port, ok = tmpMap[keywordpara].(int)
             case "cluster_name":
-                value, ok := tmpMap[keywordpara].(string)
-                if (!ok) {
-                    panic("wrong type for cluster_name for get store\n")
-                }
-                cluster_name = value
+                cluster_name, ok = tmpMap[keywordpara].(string)
             case "database":
-                value, ok := tmpMap[keywordpara].(string)
-                if (!ok) {
-                    panic("wrong type for database for get store\n")
-                }
-                database = value
+                database, ok = tmpMap[keywordpara].(string)
             case "username":
-                value, ok := tmpMap[keywordpara].(string)
-                if (!ok) {
-                    panic("wrong type for username for get store\n")
-                }
-                username = value
+                username, ok = tmpMap[keywordpara].(string)
             case "password":
-                value, ok := tmpMap[keywordpara].(string)
-                if (!ok) {
-                    panic("wrong type for password for get store\n")
-                }
-                password = value
+                password, ok = tmpMap[keywordpara].(string)
             case "notification_member":
-                value, ok := tmpMap[keywordpara].(string)
-                if (!ok) {
-                    panic("wrong type for notification_member for get store\n")
-                }
-                notification_member = value
+                notification_member, ok = tmpMap[keywordpara].(string)
             case "notification_provider":
-                value, ok := tmpMap[keywordpara].(string)
-                if (!ok) {
-                    panic("wrong type for notification_provider for get store\n")
-                }
-                notification_provider = value
+                notification_provider, ok = tmpMap[keywordpara].(string)
             default:
                 panic(fmt.Sprintf("wrong name of parameter for get store: %v\n", keywordpara))
+            }
+
+            if (!ok) {
+                panic(fmt.Sprintf("wrong type for %v for get store\n", keywordpara))
             }
         }
         ret = e.Wrapped_get_store(host, port, cluster_name, database, username, password, notification_member, notification_provider)
@@ -554,6 +598,9 @@ func (e SwigcptrWrapped_Store) PartitionInfo() (partitionController PartitionCon
 func (e SwigcptrWrapped_Store) GetContainerInfo(conName string) (containerInfo ContainerInfo, err error) {
     defer catch(&err)
     containerInfo = e.Wrapped_get_container_info(conName).(ContainerInfo)
+    if (int(containerInfo.Swigcptr()) == 0) {
+        containerInfo = nil
+    }
     return
 }
 func (e SwigcptrWrapped_Store) CreateRowKeyPredicate(mType int) (predicate RowKeyPredicate, err error) {
@@ -586,19 +633,42 @@ func (e SwigcptrWrapped_Store) MultiPut(rowContainerList map[string][][]interfac
 }
 func (e SwigcptrWrapped_Store) MultiGet(predicate map[string]RowKeyPredicate) (mapRowList map[string][][]interface{}, err error) {
     defer catch(&err)
-    var tmp interface{}
-    e.Wrapped_multi_get(predicate, &tmp)
-    mapRowList = tmp.(map[string][][]interface{})
+    var tmpInput []interface{}
+    e.Wrapped_multi_get(predicate, &tmpInput)
+    
+    slice := *(*[]swig_ContainerListRow)(unsafe.Pointer(&tmpInput))
+    tmp := make(map[string][][]interface{})
+    for i := range slice {
+        tmpSliceRow := *(*[][]swig_uintptr)(unsafe.Pointer(slice[i].listRow))
+        tmpListRow  := make([][]interface{}, slice[i].listSize)
+        var containerName bytes.Buffer
+        containerName.WriteString(slice[i].containerName)
+        for j := range tmpSliceRow {
+            tmpListRow[j] = make([]interface{}, len(tmpSliceRow[j]))
+            for n := range tmpListRow[j] {
+                GoDataTOInterfaceUintptr(tmpSliceRow[j][n], &tmpListRow[j][n])
+            }
+        }
+        tmp[containerName.String()] = tmpListRow
+    }
+    C.freeStoreMultiGet(C.uintptr_t(uintptr(unsafe.Pointer(&tmpInput))))
+    mapRowList = tmp
     return
 }
 func (e SwigcptrWrapped_Store) PutContainer(a ...interface{}) (container Container, err error) {
     defer catch(&err)
     container = e.Wrapped_put_container(a ...)
+    if (int(container.Swigcptr()) == 0) {
+        container = nil
+    }
     return
 }
 func (e SwigcptrWrapped_Store) GetContainer(containerName string) (container Container, err error) {
     defer catch(&err)
     container = e.Wrapped_get_container(containerName)
+    if (int(container.Swigcptr()) == 0) {
+        container = nil
+    }
     return
 }
 func (e SwigcptrWrapped_Store) DropContainer(containerName interface{}) (err error) {
@@ -629,6 +699,7 @@ func (e SwigcptrWrapped_QueryAnalysisEntry) Get() (info []interface{}, err error
 %typemap(imtype) (griddb::PartitionController*) %{SwigcptrWrapped_PartitionController%}
 namespace griddb {
 %rename(Wrapped_PartitionController) PartitionController;
+%rename(Wrapped_get_partition_count) PartitionController::get_partition_count;
 %rename(Wrapped_get_container_names) PartitionController::get_container_names;
 %rename(Wrapped_get_container_count) PartitionController::get_container_count;
 %rename(Wrapped_get_partition_index_of_container) PartitionController::get_partition_index_of_container;
@@ -636,9 +707,15 @@ namespace griddb {
 %insert(go_wrapper) %{
 type PartitionController interface {
     Wrapped_PartitionController
+    GetPartitionCount() (count int, err error)
     GetContainerNames(a ...interface{}) (stringList []string, err error)
     GetContainerCount(partition_index int) (count int64, err error)
     GetPartitionIndexOfContainer(container_name string) (ret int, err error)
+}
+func (e SwigcptrWrapped_PartitionController) GetPartitionCount() (count int, err error) {
+    defer catch(&err)
+    count = e.Wrapped_get_partition_count()
+    return
 }
 func (e SwigcptrWrapped_PartitionController) GetPartitionIndexOfContainer(container_name string) (ret int, err error) {
     defer catch(&err)
@@ -711,15 +788,8 @@ func (e SwigcptrWrapped_RowKeyPredicate) SetDistinctKeys(keys []interface{}) (er
     return
 }
 %}
-%typemap(gotype) (griddb::TimestampUtils*) %{TimestampUtils%}
-%typemap(imtype) (griddb::TimestampUtils*) %{SwigcptrWrapped_TimestampUtils%}
-namespace griddb {
-%rename(Wrapped_TimestampUtils) TimestampUtils;
-}
+
 %insert(go_wrapper) %{
-type TimestampUtils interface {
-    Wrapped_TimestampUtils
-}
 func GetTimeMillis(mTime time.Time) (mResult int) {
     second     := mTime.Unix()
     miliSecond := mTime.Nanosecond() / 1000000
@@ -971,8 +1041,13 @@ void freePartitionConName(uintptr_t data) {
 static bool convertFieldKeyToObjectUintptr(swig_uintptr *map, GSType type, griddb::Field *field, bool timestamp_output_with_float = false) {
     switch(type) {
     case GS_TYPE_STRING: {
-        GoString *tmpGo = new GoString();
-        char *tmpStr = new char[strlen(field->value.asString)]();
+        GoString *tmpGo = new (nothrow) GoString();
+        char *tmpStr = new (nothrow) char[strlen(field->value.asString)]();
+        if (tmpGo == NULL || tmpStr == NULL) {
+            delete tmpGo;
+            delete [] tmpStr;
+            SWIG_exception(SWIG_ValueError, "allocate memory for string for key failed");
+        }
         memcpy(tmpStr, field->value.asString, strlen(field->value.asString));
         tmpGo->p  = tmpStr;
         tmpGo->n  = strlen(field->value.asString);
@@ -980,19 +1055,28 @@ static bool convertFieldKeyToObjectUintptr(swig_uintptr *map, GSType type, gridd
         break;
     }
     case GS_TYPE_INTEGER: {
-        int32_t *tmpGo = new int32_t();
+        int32_t *tmpGo = new (nothrow) int32_t();
+        if (tmpGo == NULL) {
+            SWIG_exception(SWIG_ValueError, "allocate memory for integer for key failed");
+        }
         *tmpGo = field->value.asInteger;
         map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
         break;
     }
     case GS_TYPE_LONG: {
-        int64_t *tmpGo = new int64_t();
+        int64_t *tmpGo = new (nothrow) int64_t();
+        if (tmpGo == NULL) {
+            SWIG_exception(SWIG_ValueError, "allocate memory for long for key failed");
+        }
         *tmpGo = field->value.asLong;
         map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
         break;
     }
     case GS_TYPE_TIMESTAMP: {
-        int64_t *tmpGo = new int64_t();
+        int64_t *tmpGo = new (nothrow) int64_t();
+        if (tmpGo == NULL) {
+            SWIG_exception(SWIG_ValueError, "allocate memory for long for key failed");
+        }
         *tmpGo = field->value.asTimestamp;
         map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
         break;
@@ -1008,18 +1092,16 @@ static bool convertFieldKeyToObjectUintptr(swig_uintptr *map, GSType type, gridd
 static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType type, int no, bool timestamp_output_with_float = false) {
 
     GSResult ret;
-
-%#if GS_COMPATIBILITY_SUPPORT_3_5
     GSBool nullValue;
     ret = gsGetRowFieldNull(row, no, &nullValue);
     if (ret != GS_RESULT_OK) {
-        SWIG_exception(SWIG_ValueError, "check get field null failed");
+        throw std::runtime_error("check get field null failed");
     }
     if (nullValue) {
         map->type = GS_TYPE_NULL;
         return;
     }
-%#endif
+
     map->type = type;
     map->isFloat = timestamp_output_with_float;
 
@@ -1028,11 +1110,18 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             GSChar* stringValue;
             ret = gsGetRowFieldAsString(row, no, (const GSChar **)&stringValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field string failed");
+                throw std::runtime_error("get field string failed");
             }
-            GoString *tmpGo = new GoString();
+            GoString *tmpGo = new (nothrow) GoString();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for string to convert row to Object failed");
+            }
             tmpGo->n = strlen(stringValue);
-            GSChar *tmp = new GSChar[strlen(stringValue)]();
+            GSChar *tmp = new (nothrow) GSChar[strlen(stringValue)]();
+            if (tmp == NULL) {
+                delete tmpGo;
+                throw std::runtime_error("allocate memory for string to convert row to Object failed");
+            }
             memcpy(tmp, stringValue, strlen(stringValue));
             tmpGo->p = tmp;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
@@ -1042,9 +1131,12 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             GSBool boolValue;
             ret = gsGetRowFieldAsBool(row, no, &boolValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field bool failed");
+                throw std::runtime_error("get field bool failed");
             }
-            bool *tmpGo = new bool();
+            bool *tmpGo = new (nothrow) bool();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for boolean to convert row to Object failed");
+            }
             *tmpGo = boolValue;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
             break;
@@ -1053,9 +1145,12 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             int8_t byteValue;
             ret = gsGetRowFieldAsByte(row, no, &byteValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field byte failed");
+                throw std::runtime_error("get field byte failed");
             }
-            int8_t *tmpGo = new int8_t();
+            int8_t *tmpGo = new (nothrow) int8_t();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for int8_t to convert row to Object failed");
+            }
             *tmpGo = byteValue;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
             break;
@@ -1064,9 +1159,12 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             int16_t shortValue;
             ret = gsGetRowFieldAsShort(row, no, &shortValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field short failed");
+                throw std::runtime_error("get field short failed");
             }
-            int16_t *tmpGo = new int16_t();
+            int16_t *tmpGo = new (nothrow) int16_t();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for int16_t to convert row to Object failed");
+            }
             *tmpGo = shortValue;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
             break;
@@ -1075,9 +1173,12 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             int32_t intValue;
             ret = gsGetRowFieldAsInteger(row, no, &intValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field integer failed");
+                throw std::runtime_error("get field integer failed");
             }
-            int32_t *tmpGo = new int32_t();
+            int32_t *tmpGo = new (nothrow) int32_t();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for int32_t to convert row to Object failed");
+            }
             *tmpGo = intValue;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
             break;
@@ -1086,9 +1187,12 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             int64_t longValue;
             ret = gsGetRowFieldAsLong(row, no, &longValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field long failed");
+                throw std::runtime_error("get field long failed");
             }
-            int64_t *tmpGo = new int64_t();
+            int64_t *tmpGo = new (nothrow) int64_t();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for int64_t to convert row to Object failed");
+            }
             *tmpGo = longValue;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
             break;
@@ -1097,9 +1201,12 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             float floatValue;
             ret = gsGetRowFieldAsFloat(row, no, &floatValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field float failed");
+                throw std::runtime_error("get field float failed");
             }
-            float *tmpGo = new float();
+            float *tmpGo = new (nothrow) float();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for float to convert row to Object failed");
+            }
             *tmpGo = floatValue;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
             break;
@@ -1108,9 +1215,12 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             double doubleValue;
             ret = gsGetRowFieldAsDouble(row, no, &doubleValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field double failed");
+                throw std::runtime_error("get field double failed");
             }
-            double *tmpGo = new double();
+            double *tmpGo = new (nothrow) double();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for double to convert row to Object failed");
+            }
             *tmpGo = doubleValue;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
             break;
@@ -1119,9 +1229,12 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             GSTimestamp timestampValue;
             ret = gsGetRowFieldAsTimestamp(row, no, &timestampValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field timestamp failed");
+                throw std::runtime_error("get field timestamp failed");
             }
-            int64_t *tmpGo = new int64_t();
+            int64_t *tmpGo = new (nothrow) int64_t();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for timestamp to convert row to Object failed");
+            }
             *tmpGo = timestampValue;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
             break;
@@ -1130,11 +1243,18 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             GSChar* geometryValue;
             ret = gsGetRowFieldAsGeometry(row, no, (const GSChar **)&geometryValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field geometry failed");
+                throw std::runtime_error("get field geometry failed");
             }
-            GoString *tmpGo = new GoString();
+            GoString *tmpGo = new (nothrow) GoString();
+            if (tmpGo == NULL) {
+                throw std::runtime_error("allocate memory for geometry to convert row to Object failed");
+            }
             tmpGo->n = strlen(geometryValue);
-            GSChar *tmp = new GSChar[strlen(geometryValue)]();
+            GSChar *tmp = new (nothrow) GSChar[strlen(geometryValue)]();
+            if (tmp == NULL) {
+                delete tmpGo;
+                throw std::runtime_error("allocate memory for geometry to convert row to Object failed");
+            }
             memcpy(tmp, geometryValue, strlen(geometryValue));
             tmpGo->p = tmp;
             map->data = reinterpret_cast<std::uintptr_t>(tmpGo);
@@ -1144,11 +1264,18 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             GSBlob blobValue;
             ret = gsGetRowFieldAsBlob(row, no, &blobValue);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "get field string failed");
+                throw std::runtime_error("get field string failed");
             }
-            GSChar *tmp = new GSChar[blobValue.size]();
+            GSChar *tmp = new (nothrow) GSChar[blobValue.size]();
+            if (tmp == NULL) {
+                throw std::runtime_error("allocate memory for blob to convert row to object failed");
+            }
             memcpy(tmp, blobValue.data, blobValue.size);
-            GoSlice *tmpGo = new GoSlice();
+            GoSlice *tmpGo = new (nothrow) GoSlice();
+            if (tmpGo == NULL) {
+                delete [] tmp;
+                throw std::runtime_error("allocate memory for blob to convert row to object failed");
+            }
             tmpGo->len = blobValue.size;
             tmpGo->cap = blobValue.size;
             tmpGo->data = tmp;
@@ -1156,7 +1283,7 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             break;
         }
         default:
-            SWIG_exception(SWIG_ValueError, "GSType for convert row to object is not correct");
+            throw std::runtime_error("GSType for convert row to object is not correct");
     }
 }
 }
@@ -1167,14 +1294,17 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             GetInterfaceArrayLength_return array_length = {0};
             array_length = GetInterfaceArrayLength(inputData, GS_TYPE_STRING);
             if (array_length.r1 == -1) {
-                SWIG_exception(SWIG_ValueError, "Get string size from Go code is failed");
+                throw std::runtime_error("Get string size from Go code is failed");
             }
-            GoUint8 *tmp = new GoUint8[array_length.r0 + 1]();
+            GoUint8 *tmp = new (nothrow) GoUint8[array_length.r0 + 1]();
+            if (tmp == NULL) {
+                throw std::runtime_error("allocate memory for string to convert object to field key failed");
+            }
             GoSlice tmpSlice = {tmp, array_length.r0, array_length.r0};
             int result = SetForBlobString(inputData, tmpSlice);
             if (result == -1) {
                 delete [] tmp;
-                SWIG_exception(SWIG_ValueError, "Get string from Go code is failed");
+                throw std::runtime_error("Get string from Go code is failed");
             }
             field.value.asString = (GSChar*)tmp;
             field.type = GS_TYPE_STRING;
@@ -1184,11 +1314,11 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             GetNumericInterface_return return_result = {0};
             return_result = GetNumericInterface(inputData, GS_TYPE_INTEGER);
             if (return_result.r3 == -1) {
-                SWIG_exception(SWIG_ValueError, "Get integer from Go code is failed");
+                throw std::runtime_error("Get integer from Go code is failed");
             }
             if (return_result.r1 < std::numeric_limits<int32_t>::min() ||
                     return_result.r1 > std::numeric_limits<int32_t>::max()) {
-                SWIG_exception(SWIG_ValueError, "integer is out of range");
+                throw std::runtime_error("integer is out of range");
             }
             field.type = GS_TYPE_INTEGER;
             field.value.asInteger = int32_t(return_result.r1);
@@ -1196,9 +1326,9 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         }
         case GS_TYPE_LONG: {
             GetNumericInterface_return return_result = {0};
-            return_result = GetNumericInterface(inputData, GS_TYPE_INTEGER);
+            return_result = GetNumericInterface(inputData, GS_TYPE_LONG);
             if (return_result.r3 == -1) {
-                SWIG_exception(SWIG_ValueError, "Get integer from Go code is failed");
+                throw std::runtime_error("Get integer from Go code is failed");
             }
             field.value.asLong = return_result.r1;
             field.type = GS_TYPE_LONG;
@@ -1208,7 +1338,7 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             GetNumericInterface_return return_result = {0};
             return_result = GetNumericInterface(inputData, GS_TYPE_TIMESTAMP);
             if (return_result.r3 == -1) {
-                SWIG_exception(SWIG_ValueError, "Get timestamp from Go code is failed");
+                throw std::runtime_error("Get timestamp from Go code is failed");
             }
             if (return_result.r0 != GS_TYPE_STRING) {
                 field.value.asTimestamp = return_result.r1;
@@ -1217,18 +1347,21 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
                 GetInterfaceArrayLength_return array_length = {0};
                 array_length = GetInterfaceArrayLength(inputData, GS_TYPE_STRING);
                 if (array_length.r1 == -1) {
-                    SWIG_exception(SWIG_ValueError, "Get timestamp string size from Go code is failed");
+                    throw std::runtime_error("Get timestamp string size from Go code is failed");
                 }
-                GoUint8 *tmp = new GoUint8[array_length.r0 + 1]();
+                GoUint8 *tmp = new (nothrow) GoUint8[array_length.r0 + 1]();
+                if (tmp == NULL) {
+                    throw std::runtime_error("allocate memory for timestamp to convert object to field key failed");
+                }
                 GoSlice tmpSlice = {tmp, array_length.r0, array_length.r0};
                 int result = SetForBlobString(inputData, tmpSlice);
                 if (result == -1) {
                     delete [] tmp;
-                    SWIG_exception(SWIG_ValueError, "Get timestamp string from Go code is failed");
+                    throw std::runtime_error("Get timestamp string from Go code is failed");
                 }
                 if (gsParseTime((GSChar*)tmp, &timestampVal) == GS_FALSE) {
                     delete [] tmp;
-                    SWIG_exception(SWIG_ValueError, "gsParseTime for row failed!");
+                    throw std::runtime_error("gsParseTime for row failed!");
                 }
                 field.value.asTimestamp = timestampVal;
                 delete [] tmp;
@@ -1237,7 +1370,7 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
             return true;
         }
         default:
-            return false;
+            throw std::runtime_error("The type is not supported.");
         }
         return true;
     }
@@ -1249,19 +1382,22 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetInterfaceArrayLength_return array_length = {0};
         array_length = GetInterfaceArrayLength(inputData, GS_TYPE_STRING);
         if (array_length.r1 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get string size from Go code is failed");
+            throw std::runtime_error("Get string size from Go code is failed");
         }
-        GoUint8 *tmp = new GoUint8[array_length.r0 + 1]();
+        GoUint8 *tmp = new (nothrow) GoUint8[array_length.r0 + 1]();
+        if (tmp == NULL) {
+            throw std::runtime_error("allocate memory when set row from object with string failed");
+        }
         GoSlice tmpSlice = {tmp, array_length.r0, array_length.r0};
         int result = SetForBlobString(inputData, tmpSlice);
         if (result == -1) {
             delete [] tmp;
-            SWIG_exception(SWIG_ValueError, "Get string from Go code is failed");
+            throw std::runtime_error("Get string from Go code is failed");
         }
         GSResult ret = gsSetRowFieldByString(row, no, (const GSChar *)tmp);
         if (ret != GS_RESULT_OK) {
             delete [] tmp;
-            SWIG_exception(SWIG_ValueError, "Can not set string value for row");
+            throw std::runtime_error("Can not set string value for row");
         }
         delete [] tmp;
         return true;
@@ -1270,11 +1406,11 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetNumericInterface_return return_result = {0};
         return_result = GetNumericInterface(inputData, GS_TYPE_BOOL);
         if (return_result.r3 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get bool from Go code is failed");
+            throw std::runtime_error("Get bool from Go code is failed");
         }
         GSResult ret = gsSetRowFieldByBool(row, no, (return_result.r1) ? true:false);
         if (ret != GS_RESULT_OK) {
-            SWIG_exception(SWIG_ValueError, "Can not set bool value for row");
+            throw std::runtime_error("Can not set bool value for row");
         }
         return true;
     }
@@ -1282,15 +1418,15 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetNumericInterface_return return_result = {0};
         return_result = GetNumericInterface(inputData, GS_TYPE_BYTE);
         if (return_result.r3 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get byte from Go code is failed");
+            throw std::runtime_error("Get byte from Go code is failed");
         }
         if (return_result.r1 < std::numeric_limits<int8_t>::min() ||
             return_result.r1 > std::numeric_limits<int8_t>::max()) {
-            SWIG_exception(SWIG_ValueError, "byte is out of range");
+            throw std::runtime_error("byte is out of range");
         }
         GSResult ret = gsSetRowFieldByByte(row, no, int8_t(return_result.r1));
         if (ret != GS_RESULT_OK) {
-            SWIG_exception(SWIG_ValueError, "Can not set byte value for row");
+            throw std::runtime_error("Can not set byte value for row");
         }
         return true;
     }
@@ -1298,15 +1434,15 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetNumericInterface_return return_result = {0};
         return_result = GetNumericInterface(inputData, GS_TYPE_SHORT);
         if (return_result.r3 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get short from Go code is failed");
+            throw std::runtime_error("Get short from Go code is failed");
         }
         if (return_result.r1 < std::numeric_limits<int16_t>::min() ||
             return_result.r1 > std::numeric_limits<int16_t>::max()) {
-            SWIG_exception(SWIG_ValueError, "short is out of range");
+            throw std::runtime_error("short is out of range");
         }
         GSResult ret = gsSetRowFieldByShort(row, no, int16_t(return_result.r1));
         if (ret != GS_RESULT_OK) {
-            SWIG_exception(SWIG_ValueError, "Can not set short value for row");
+            throw std::runtime_error("Can not set short value for row");
         }
         return true;
     }
@@ -1314,15 +1450,15 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetNumericInterface_return return_result = {0};
         return_result = GetNumericInterface(inputData, GS_TYPE_INTEGER);
         if (return_result.r3 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get integer from Go code is failed");
+            throw std::runtime_error("Get integer from Go code is failed");
         }
         if (return_result.r1 < std::numeric_limits<int32_t>::min() ||
             return_result.r1 > std::numeric_limits<int32_t>::max()) {
-            SWIG_exception(SWIG_ValueError, "integer is out of range");
+            throw std::runtime_error("integer is out of range");
         }
         GSResult ret = gsSetRowFieldByInteger(row, no, int32_t(return_result.r1));
         if (ret != GS_RESULT_OK) {
-            SWIG_exception(SWIG_ValueError, "Can not set integer value for row");
+            throw std::runtime_error("Can not set integer value for row");
         }
         return true;
     }
@@ -1330,11 +1466,11 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetNumericInterface_return return_result = {0};
         return_result = GetNumericInterface(inputData, GS_TYPE_LONG);
         if (return_result.r3 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get long from Go code is failed");
+            throw std::runtime_error("Get long from Go code is failed");
         }
          GSResult ret = gsSetRowFieldByLong(row, no, return_result.r1);
         if (ret != GS_RESULT_OK) {
-            SWIG_exception(SWIG_ValueError, "Can not set long value for row");
+            throw std::runtime_error("Can not set long value for row");
         }
         return true;
     }
@@ -1342,15 +1478,15 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetNumericInterface_return return_result = {0};
         return_result = GetNumericInterface(inputData, GS_TYPE_FLOAT);
         if (return_result.r3 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get integer from Go code is failed");
+            throw std::runtime_error("Get float from Go code is failed");
         }
         if (return_result.r2 < - std::numeric_limits<float>::max() ||
             return_result.r2 > std::numeric_limits<float>::max()) {
-            SWIG_exception(SWIG_ValueError, "float is out of range");
+            throw std::runtime_error("float is out of range");
         }
         GSResult ret = gsSetRowFieldByFloat(row, no, float(return_result.r2));
         if (ret != GS_RESULT_OK) {
-            SWIG_exception(SWIG_ValueError, "Can not set float value for row");
+            throw std::runtime_error("Can not set float value for row");
         }
         return true;
     }
@@ -1358,11 +1494,11 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetNumericInterface_return return_result = {0};
         return_result = GetNumericInterface(inputData, GS_TYPE_DOUBLE);
         if (return_result.r3 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get double from Go code is failed");
+            throw std::runtime_error("Get double from Go code is failed");
         }
         GSResult ret = gsSetRowFieldByDouble(row, no, return_result.r2);
         if (ret != GS_RESULT_OK) {
-            SWIG_exception(SWIG_ValueError, "Can not set float value for row");
+            throw std::runtime_error("Can not set float value for row");
         }
         return true;
     }
@@ -1370,36 +1506,39 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetNumericInterface_return return_result = {0};
         return_result = GetNumericInterface(inputData, GS_TYPE_TIMESTAMP);
         if (return_result.r3 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get timestamp from Go code is failed");
+            throw std::runtime_error("Get timestamp from Go code is failed");
         }
         GSResult ret;
         if (return_result.r0 != GS_TYPE_STRING) {
             ret = gsSetRowFieldByTimestamp(row, no, return_result.r1);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "Can not set timestamp value for row");
+                throw std::runtime_error("Can not set timestamp value for row");
             }
         } else {
             GSTimestamp timestampVal;
             GetInterfaceArrayLength_return array_length = {0};
             array_length = GetInterfaceArrayLength(inputData, GS_TYPE_STRING);
             if (array_length.r1 == -1) {
-                SWIG_exception(SWIG_ValueError, "Get timestamp string size from Go code is failed");
+                throw std::runtime_error("Get timestamp string size from Go code is failed");
             }
-            GoUint8 *tmp = new GoUint8[array_length.r0 + 1]();
+            GoUint8 *tmp = new (nothrow) GoUint8[array_length.r0 + 1]();
+            if (tmp == NULL) {
+                throw std::runtime_error("allocate memory when set row from object with timestamp failed");
+            }
             GoSlice tmpSlice = {tmp, array_length.r0, array_length.r0};
             int result = SetForBlobString(inputData, tmpSlice);
             if (result == -1) {
                 delete [] tmp;
-                SWIG_exception(SWIG_ValueError, "Get timestamp string from Go code is failed");
+                throw std::runtime_error("Get timestamp string from Go code is failed");
             }
             if (gsParseTime((GSChar*)tmp, &timestampVal) == GS_FALSE) {
                 delete [] tmp;
-                SWIG_exception(SWIG_ValueError, "gsParseTime for row failed!");
+                throw std::runtime_error("gsParseTime for row failed!");
             }
             ret = gsSetRowFieldByTimestamp(row, no, timestampVal);
             if (ret != GS_RESULT_OK) {
                 delete [] tmp;
-                SWIG_exception(SWIG_ValueError, "Can not set timestamp value for row");
+                throw std::runtime_error("Can not set timestamp value for row");
             }
             delete [] tmp;
         }
@@ -1409,19 +1548,22 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         GetInterfaceArrayLength_return array_length = {0};
         array_length = GetInterfaceArrayLength(inputData, GS_TYPE_GEOMETRY);
         if (array_length.r1 == -1) {
-            SWIG_exception(SWIG_ValueError, "Get geometry size from Go code is failed");
+            throw std::runtime_error("Get geometry size from Go code is failed");
         }
-        GoUint8 *tmp = new GoUint8[array_length.r0 + 1]();
+        GoUint8 *tmp = new (nothrow) GoUint8[array_length.r0 + 1]();
+        if (tmp == NULL) {
+            throw std::runtime_error("allocate memory when set row from object with geometry failed");
+        }
         GoSlice tmpSlice = {tmp, array_length.r0, array_length.r0};
         int result = SetForBlobString(inputData, tmpSlice);
         if (result == -1) {
             delete [] tmp;
-            SWIG_exception(SWIG_ValueError, "Get geometry from Go code is failed");
+            throw std::runtime_error("Get geometry from Go code is failed");
         }
         GSResult ret = gsSetRowFieldByGeometry(row, no, (GSChar*)tmp);
         if (ret != GS_RESULT_OK) {
             delete [] tmp;
-            SWIG_exception(SWIG_ValueError, "Can not set geometry value for row");
+            throw std::runtime_error("Can not set geometry value for row");
         }
         delete [] tmp;
         return true;
@@ -1432,34 +1574,35 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
         if (array_length.r1 == -1) {
             array_length = GetInterfaceArrayLength(inputData, GS_TYPE_STRING);
             if (array_length.r1 == -1) {
-                SWIG_exception(SWIG_ValueError, "Get string size from Go code is failed");
+                throw std::runtime_error("Get string size from Go code is failed");
             }
         }
-        GoUint8 *tmp = new GoUint8[array_length.r0 + 1]();
+        GoUint8 *tmp = new (nothrow) GoUint8[array_length.r0 + 1]();
+        if (tmp == NULL) {
+            throw std::runtime_error("allocate memory when set row from object with blob failed");
+        }
         GoSlice tmpSlice = {tmp, array_length.r0, array_length.r0};
         int result = SetForBlobString(inputData, tmpSlice);
         if (result == -1) {
             delete [] tmp;
-            SWIG_exception(SWIG_ValueError, "Get blob from Go code is failed");
+            throw std::runtime_error("Get blob from Go code is failed");
         }
-        GSBlob blobValTmp = {static_cast<size_t>(array_length.r0), (const void*)tmp};
+        GSBlob blobValTmp = {array_length.r0, (const void*)tmp};
         GSResult ret = gsSetRowFieldByBlob(row, no, &blobValTmp);
         if (ret != GS_RESULT_OK) {
-            SWIG_exception(SWIG_ValueError, "Can not set blob value for row");
+            delete [] tmp;
+            throw std::runtime_error("Can not set blob value for row");
         }
+        delete [] tmp;
         return true;
     }
     static bool setRowFromObject(GSRow *row, int no, uintptr_t inputData, GSType type) {
         bool isNil = checkNil(inputData);
         if (isNil) {
-%#if GS_COMPATIBILITY_SUPPORT_3_5
             GSResult ret = gsSetRowFieldNull(row, no);
             if (ret != GS_RESULT_OK) {
-                SWIG_exception(SWIG_ValueError, "Can not set nil value for row");
+                throw std::runtime_error("Can not set nil value for row");
             }
-%#else
-            SWIG_exception(SWIG_ValueError, "Nil is not support to set for row");
-%#endif
         } else {
             switch (type) {
             case GS_TYPE_STRING:
@@ -1496,59 +1639,37 @@ static void convertGSRowToObjectUintptr(swig_uintptr *map, GSRow *row, GSType ty
                 setRowFromObjectWithBlob(row, no, inputData);
                 break;
             default:
-                SWIG_exception(SWIG_ValueError, "can not detect type from container successfully");
+                throw std::runtime_error("can not detect type from container successfully");
                 break;
             }
         }
         return true;
     }
 }
-/**
-* Typemaps for StoreFactory.set_properties() function
-*/
-%typemap(gotype) (const GSPropertyEntry* props, int propsCount) %{map[string]string%}
-%typemap(imtype) (const GSPropertyEntry* props, int propsCount) %{[]swig_mapstringstring%}
-%typemap(goin, fragment="goStructs") (const GSPropertyEntry* props, int propsCount) %{
-    $result = make([]swig_mapstringstring, len($input), len($input))
-    i := 0
-    for key, value := range $input {
-        $result[i].key = key
-        $result[i].value = value
-        i++
-    }
-%}
-%typemap(in, fragment="cStructs") (const GSPropertyEntry* props, int propsCount)
-(char *tmpName, char *tmpValue, int i, int j) %{
-    swig_mapstringstring *prop_map = (swig_mapstringstring *)$input.array;
-    $2 = $input.len;
-    if ($2 > 0) {
-        $1 = new GSPropertyEntry[$2]();
-        for (i = 0; i < $2; i++) {
-            tmpName = new char[prop_map[i].key.n + 1]();
-            tmpValue = new char[prop_map[i].value.n + 1]();
-            if (tmpName == NULL || tmpValue == NULL) {
-                for (j = 0; j < i; j++) {
-                    delete [] $1[j].name;
-                    delete [] $1[j].value;
-                }
-            }
-            memcpy(tmpName, prop_map[i].key.p, prop_map[i].value.n);
-            memcpy(tmpValue, prop_map[i].value.p, prop_map[i].value.n);
-            $1[i].name = tmpName;
-            $1[i].value = tmpValue;
+%fragment("freeRows", "header") {
+    static void freeRows(GSRow** listRowdata, int rowCount) {
+        for (int j = 0; j < rowCount; j++) {
+            gsCloseRow(&listRowdata[j]);
         }
-    }
-%}
-%typemap(freearg) (const GSPropertyEntry* props, int propsCount) {
-    if ($1) {
-        for (int i = 0; i < $2; i++) {
-            delete [] $1[i].name;
-            delete [] $1[i].value;
-        }
-        delete [] $1;
+        delete [] listRowdata;
     }
 }
-
+%fragment("freeSwig_columnInfo", "header") {
+    static void freeSwig_columnInfo(swig_columnInfo *tmpColumnInfo, int count) {
+        for (int j = 0; j < count; j++) {
+            delete [] tmpColumnInfo[j].columnName.p;
+        }
+        delete [] tmpColumnInfo;
+    }
+}
+%fragment("freeGSColumnInfo", "header") {
+    static void freeGSColumnInfo(GSColumnInfo *tmpColumnInfo, int count) {
+        for (int k = 0; k < count; k++) {
+            delete [] tmpColumnInfo[k].name;
+        }
+        delete [] tmpColumnInfo;
+    }
+}
 /**
 * Typemaps for ContainerInfo's constructor
 */
@@ -1565,48 +1686,64 @@ int8_t *tmpStr, lenColumnName_return nameData, getColumnInfo_return result, int 
     tmpData = (uintptr_t*)$input.array;
     $2 = $input.len;
     if ($2 <= 0) {
-        SWIG_exception(SWIG_ValueError, "err schema for GSColumnInfo no column");
+        goto do_free_when_throw_err;
     }
-    $1 = new GSColumnInfo[$2]();
+    $1 = new (nothrow) GSColumnInfo[$2]();
+    if ($1 == NULL) {
+        goto do_free_when_throw_err;
+    }
     for (i = 0; i < $2; i++) {
         nameData = lenColumnName(tmpData[i]);
         if (nameData.r1 == -1) {
-            delete [] $1;
             for (k = 0; k < i; k++) {
                 delete [] $1[k].name;
             }
-            SWIG_exception(SWIG_ValueError, "get len for column name memory from Go code failed");
+            delete [] $1;
+            goto do_free_when_throw_err;
         }
-        tmpStr = new int8_t[nameData.r0 + 1]();
+        tmpStr = new (nothrow) int8_t[nameData.r0 + 1]();
+        if (tmpStr == NULL) {
+            for (k = 0; k < i; k++) {
+                delete [] $1[k].name;
+            }
+            delete [] $1;
+            goto do_free_when_throw_err;
+        }
         sliceName = {tmpStr, nameData.r0 + 1, nameData.r0 + 1};
         result = getColumnInfo(tmpData[i], sliceName);
         if (result.r2 == -1) {
-            delete [] $1;
             for (k = 0; k < i; k++) {
                 delete [] $1[k].name;
             }
-            SWIG_exception(SWIG_ValueError, "get column info from Go code failed");
+            delete [] $1;
+            delete [] tmpStr;
+            goto do_free_when_throw_err;
         }
         $1[i].name = (char *)tmpStr;
         $1[i].type = (int32_t) result.r0;
-#if GS_COMPATIBILITY_SUPPORT_3_5
+
         if (result.r1 == 0) { // if no set for options
             $1[i].options = (i == 0) ? GS_TYPE_OPTION_NOT_NULL:GS_TYPE_OPTION_NULLABLE;
         } else {
             $1[i].options = (int32_t) result.r1;
         }
         $1[i].indexTypeFlags = GS_INDEX_FLAG_DEFAULT;
-#endif
     }
 %}
-%typemap(freearg) (const GSColumnInfo* props, int propsCount) %{
-    if ($1) {
-        for (int i = 0; i < $2; i++) {
-            delete [] $1[i].name;
+%typemap(argout) (const GSChar* name, const GSColumnInfo* props, int propsCount) %{
+    if ($2) {
+        for (int i = 0; i < $3; i++) {
+            delete [] $2[i].name;
         }
-        delete [] $1;
+        delete [] $2;
     }
-%}
+
+    do_free_when_throw_err:
+    if ($result == NULL) {
+        free($1);
+        SWIG_exception(SWIG_ValueError, "create container err");
+    }
+ %}
 /*
  * Typemap for ContainerInfo.set_column_info_list
  */
@@ -1618,44 +1755,44 @@ int8_t *tmpStr, lenColumnName_return nameData, getColumnInfo_return result, int 
         $result[i] = (uintptr)(unsafe.Pointer(&$input[i]))
     }
 %}
-%typemap(in) (ColumnInfoList columnInfoList) (GSColumnInfo *tmpColumnInfo, uintptr_t* tmpData, int i,
+%typemap(in, fragment="freeGSColumnInfo") (ColumnInfoList columnInfoList) (GSColumnInfo *tmpColumnInfo, uintptr_t* tmpData, int i,
 int k, lenColumnName_return nameData, getColumnInfo_return result, GoSlice tmpSlice, int8_t *tmpStr) %{
     $1.size = $input.len;
     tmpData = (uintptr_t *)$input.array;
     if ($1.size <= 0) {
         $1.columnInfo = NULL;
     } else {
-        tmpColumnInfo = new GSColumnInfo[$1.size]();
+        tmpColumnInfo = new (nothrow) GSColumnInfo[$1.size]();
+        if (tmpColumnInfo == NULL) {
+            SWIG_exception(SWIG_ValueError, "allocate memory for GSColumnInfo for ContainerInfo.set_column_info_list failed");
+        }
         for (i = 0; i < $input.len; i++) {
             nameData = lenColumnName(tmpData[i]);
             if (nameData.r1 == -1) {
-                for (k = 0; k < i; k++) {
-                    delete [] tmpColumnInfo[k].name;
-                }
-                delete [] tmpColumnInfo;
+                freeGSColumnInfo(tmpColumnInfo, i);
                 SWIG_exception(SWIG_ValueError, "get len for column name memory from Go code failed");
             }
-            tmpStr = new int8_t[nameData.r0 + 1]();
+            tmpStr = new (nothrow) int8_t[nameData.r0 + 1]();
+            if (tmpStr == NULL) {
+                freeGSColumnInfo(tmpColumnInfo, i);
+                SWIG_exception(SWIG_ValueError, "allocate memory for columnInfoList failed");
+            }
             tmpSlice = {tmpStr, nameData.r0 + 1, nameData.r0 + 1};
             result = getColumnInfo(tmpData[i], tmpSlice);
             if (result.r2 == -1) {
-                for (k = 0; k < i; k++) {
-                    delete [] tmpColumnInfo[k].name;
-                }
+                freeGSColumnInfo(tmpColumnInfo, i);
                 delete [] tmpStr;
-                delete [] tmpColumnInfo;
                 SWIG_exception(SWIG_ValueError, "get column info from Go code failed");
             }
             tmpColumnInfo[i].name = (char *)tmpStr;
             tmpColumnInfo[i].type = result.r0;
-#if GS_COMPATIBILITY_SUPPORT_3_5
+
             if (result.r1 == 0) { // if no set for options
                 tmpColumnInfo[i].options = (i == 0) ? GS_TYPE_OPTION_NOT_NULL:GS_TYPE_OPTION_NULLABLE;
             } else {
                 tmpColumnInfo[i].options = result.r1;
             }
             tmpColumnInfo[i].indexTypeFlags = GS_INDEX_FLAG_DEFAULT;
-#endif
         }
         $1.columnInfo = tmpColumnInfo;
     }
@@ -1675,15 +1812,21 @@ int k, lenColumnName_return nameData, getColumnInfo_return result, GoSlice tmpSl
  * Typemap for ContainerInfo.get_column_info_list
  */
 %typemap(gotype) (ColumnInfoList) %{[][]interface{}%}
-%typemap(out) (ColumnInfoList) (swig_columnInfo *tmpColumnInfo, char *tmpStr, int i, int j) %{
-    tmpColumnInfo = new swig_columnInfo[$1.size]();
+%typemap(out, fragment="freeSwig_columnInfo") (ColumnInfoList) (swig_columnInfo *tmpColumnInfo, char *tmpStr, int i, int j) %{
+    tmpColumnInfo = new (nothrow) swig_columnInfo[$1.size]();
+    if (tmpColumnInfo == NULL) {
+        SWIG_exception(SWIG_ValueError, "allocate memory for ContainerInfo.get_column_info_list failed");
+    }
     for (i = 0; i < $1.size; i++) {
         tmpColumnInfo[i].mType        = $1.columnInfo[i].type;
         tmpColumnInfo[i].options      = $1.columnInfo[i].options;
         tmpColumnInfo[i].columnName.n = strlen($1.columnInfo[i].name);
-        tmpStr = new char[tmpColumnInfo[i].columnName.n]();
-        memcpy(tmpStr, $1.columnInfo[i].name, tmpColumnInfo[i].columnName.n);
-        tmpColumnInfo[i].columnName.p = tmpStr;
+        tmpColumnInfo[i].columnName.p = new (nothrow) char[tmpColumnInfo[i].columnName.n]();
+        if (tmpColumnInfo[i].columnName.p == NULL) {
+            freeSwig_columnInfo(tmpColumnInfo, i);
+            SWIG_exception(SWIG_ValueError, "allocate memory for column name for ContainerInfo.get_column_info_list failed");
+        }
+        memcpy((void*)tmpColumnInfo[i].columnName.p, $1.columnInfo[i].name, tmpColumnInfo[i].columnName.n);
     }
     $result.len   = $1.size;
     $result.cap   = $1.size;
@@ -1719,7 +1862,11 @@ int k, lenColumnName_return nameData, getColumnInfo_return result, GoSlice tmpSl
     $2 = $input.len;
     $1 = NULL;
     if ($2 > 0) {
-        $1 = new GSQuery*[$2]();
+        $1 = new (nothrow) GSQuery*[$2]();
+        if ($1 == NULL) {
+            SWIG_exception(SWIG_ValueError, "allocate memory for GSQuery array failed");
+            return;
+        }
         for (int i = 0; i < $2; i++) {
             $1[i] = queries[i]->gs_ptr();
         }
@@ -1740,22 +1887,37 @@ int k, lenColumnName_return nameData, getColumnInfo_return result, GoSlice tmpSl
 %typemap(gotype) (griddb::Field *agValue) %{*[]interface{}%}
 %typemap(imtype) (griddb::Field *agValue) %{*[]swig_uintptr%}
 %typemap(argout, fragment="cStructs") (griddb::Field *agValue) %{
-    swig_uintptr *tmp = new swig_uintptr[1]();
+    swig_uintptr *tmp = new (nothrow) swig_uintptr[1]();
+    if (tmp == NULL) {
+        SWIG_exception(SWIG_ValueError, "allocate memory for swig_uintptr for AggregationResult.get failed");
+    }
     switch ($1->type) {
     case GS_TYPE_LONG: {
-        long *tmpGo = new long();
+        long *tmpGo = new (nothrow) long();
+        if (tmpGo == NULL) {
+            delete [] tmp;
+            SWIG_exception(SWIG_ValueError, "allocate memory for AggregationResult.get failed");
+        }
         *tmpGo = $1->value.asLong;
         tmp[0].data = reinterpret_cast<std::uintptr_t>(tmpGo);
         break;
     }
     case GS_TYPE_DOUBLE: {
-        double *tmpGo = new double();
+        double *tmpGo = new (nothrow) double();
+        if (tmpGo == NULL) {
+            delete [] tmp;
+            SWIG_exception(SWIG_ValueError, "allocate memory for AggregationResult.get failed");
+        }
         *tmpGo = $1->value.asDouble;
         tmp[0].data = reinterpret_cast<std::uintptr_t>(tmpGo);
         break;
     }
     case GS_TYPE_TIMESTAMP: {
-        int64_t *tmpGo = new int64_t();
+        int64_t *tmpGo = new (nothrow) int64_t();
+        if (tmpGo == NULL) {
+            delete [] tmp;
+            SWIG_exception(SWIG_ValueError, "allocate memory for AggregationResult.get failed");
+        }
         *tmpGo = $1->value.asTimestamp;
         tmp[0].data = reinterpret_cast<std::uintptr_t>(tmpGo);
         break;
@@ -1811,7 +1973,11 @@ int k, lenColumnName_return nameData, getColumnInfo_return result, GoSlice tmpSl
         SWIG_exception(SWIG_ValueError, "column number for put row is not correct");
     }
     for (i = 0; i < colNum; i++) {
-        setRowFromObject(tmpRow, i, tmpData[i], typeList[i]);
+        try {
+            setRowFromObject(tmpRow, i, tmpData[i], typeList[i]);
+        } catch (const std::runtime_error& e) {
+            SWIG_exception(SWIG_ValueError, e.what());
+        }
     }
 %}
 
@@ -1836,7 +2002,11 @@ int k, lenColumnName_return nameData, getColumnInfo_return result, GoSlice tmpSl
         SWIG_exception(SWIG_ValueError, "column number for put row is not correct");
     }
     for (i = 0; i < colNum; i++) {
-        setRowFromObject(tmpRow, i, tmpData[i], typeList[i]);
+        try {
+            setRowFromObject(tmpRow, i, tmpData[i], typeList[i]);
+        } catch (const std::runtime_error& e) {
+            SWIG_exception(SWIG_ValueError, e.what());
+        }
     }
 %}
 
@@ -1854,36 +2024,46 @@ int k, lenColumnName_return nameData, getColumnInfo_return result, GoSlice tmpSl
         $result[i] = (uintptr)(unsafe.Pointer(&$input[i]))
     }
 %}
-%typemap(in, fragment="setRowFromObject") (GSRow** listRowdata, int rowCount)
+%typemap(in, fragment="setRowFromObject", fragment="freeRows") (GSRow** listRowdata, int rowCount)
 (int colNum, GSType* typeList, GSRow **tmpListRow, GSContainer *mContainer, GSResult ret,
-uintptr_t *tmpData, GoSlice elements, uintptr_t *tmpfield, int i, int j, int k) %{
+uintptr_t *tmpData, GoSlice elements, uintptr_t *tmpfield, int i, int k) %{
     tmpData = (uintptr_t *)$input.array;
     $2 = $input.len;
     if ($2 == 0) {
         $1 = NULL;
     } else {
-        tmpListRow = new GSRow*[$2]();
+        tmpListRow = new (nothrow) GSRow*[$2]();
+        if (tmpListRow == NULL) {
+            SWIG_exception(SWIG_ValueError, "allocate new failed");
+        }
         mContainer = arg1->getGSContainerPtr();
         colNum = arg1->getColumnCount();
         typeList = arg1->getGSTypeList();
         for (i = 0; i < $2; i++) {
             ret = gsCreateRowByContainer(mContainer, &tmpListRow[i]);
             if (ret != GS_RESULT_OK) {
-                for (j = 0; j < i; j++) {
-                    gsCloseRow(&tmpListRow[j]);
-                }
-                delete [] tmpListRow;
+                freeRows(tmpListRow, i);
                 SWIG_exception(SWIG_ValueError, "gsCreateRowByContainer failed");
             }
             if (colNum != lenRow(tmpData[i])) {
-                delete [] tmpListRow;
+                freeRows(tmpListRow, i);
                 SWIG_exception(SWIG_ValueError, "column number for container multi put row is not correct");
             }
-            tmpfield = new uintptr_t[colNum]();
+            tmpfield = new (nothrow) uintptr_t[colNum]();
+            if (tmpfield == NULL) {
+                freeRows(tmpListRow, i);
+                SWIG_exception(SWIG_ValueError, "allocate memory error");
+            }
             elements = {tmpfield, colNum, colNum};
             eachElementRow(tmpData[i], elements);
             for (k = 0; k < colNum; k++) {
-                setRowFromObject(tmpListRow[i], k, tmpfield[k], typeList[k]);
+                try {
+                    setRowFromObject(tmpListRow[i], k, tmpfield[k], typeList[k]);
+                } catch (const std::runtime_error& e) {
+                    freeRows(tmpListRow, i);
+                    delete [] tmpfield;
+                    SWIG_exception(SWIG_ValueError, e.what());
+                }
             }
             delete [] tmpfield;
         }
@@ -1912,7 +2092,9 @@ uintptr_t *tmpData, GoSlice elements, uintptr_t *tmpfield, int i, int j, int k) 
 (griddb::Field tmpField, uintptr_t tmpData, GSType* typeList) %{
     tmpData = (uintptr_t)$input;
     typeList = arg1->getGSTypeList();
-    if (!convertObjectToFieldKey(tmpField, tmpData, typeList[0])) {
+    try {
+        convertObjectToFieldKey(tmpField, tmpData, typeList[0]);
+    } catch (const std::runtime_error& e) {
         SWIG_exception(SWIG_ValueError, "can not convert interface to field for key for Container get row");
     }
     $1 = &tmpField;
@@ -1927,12 +2109,20 @@ uintptr_t *tmpData, GoSlice elements, uintptr_t *tmpfield, int i, int j, int k) 
 (int i, GSRow *tmpRow, swig_uintptr *tmp, GSType *mType) %{
     if ($result == true) {
         $input->len = arg1->getColumnCount();
-        $input->cap = arg1->getColumnCount();
+        $input->cap = $input->len;
         tmpRow = arg1->getGSRowPtr();
-        tmp = new swig_uintptr[$input->len]();
+        tmp = new (nothrow) swig_uintptr[$input->len]();
+        if (tmp == NULL) {
+            SWIG_exception(SWIG_ValueError, "allocate memory for swig_uintptr for get_row failed");
+        }
         mType = arg1->getGSTypeList();
         for (i = 0; i < $input->len; i++) {
-            convertGSRowToObjectUintptr(&tmp[i], tmpRow, mType[i], i, arg1->timestamp_output_with_float);
+            try {
+                convertGSRowToObjectUintptr(&tmp[i], tmpRow, mType[i], i, arg1->timestamp_output_with_float);
+            } catch (const std::runtime_error& e) {
+                delete [] tmp;
+                SWIG_exception(SWIG_ValueError, e.what());
+            }
         }
         $input->array = tmp;
     }
@@ -1959,12 +2149,20 @@ uintptr_t *tmpData, GoSlice elements, uintptr_t *tmpfield, int i, int j, int k) 
 (int i, GSRow *tmpRow, swig_uintptr *tmp, GSType *mType) %{
     if (*$1) {
         $input->len = arg1->getColumnCount();
-        $input->cap = arg1->getColumnCount();
+        $input->cap = $input->len;
         tmpRow = arg1->getGSRowPtr();
-        tmp = new swig_uintptr[$input->len]();
+        tmp = new (nothrow) swig_uintptr[$input->len]();
+        if (tmp == NULL) {
+            SWIG_exception(SWIG_ValueError, "allocate memory for swig_uintptr for next_row failed");
+        }
         mType = arg1->getGSTypeList();
         for (i = 0; i < $input->len; i++) {
-            convertGSRowToObjectUintptr(&tmp[i], tmpRow, mType[i], i, arg1->timestamp_output_with_float);
+            try {
+                convertGSRowToObjectUintptr(&tmp[i], tmpRow, mType[i], i, arg1->timestamp_output_with_float);
+            } catch (const std::runtime_error& e) {
+                delete [] tmp;
+                SWIG_exception(SWIG_ValueError, e.what());
+            }
         }
         $input->array = tmp;
     }
@@ -2008,69 +2206,168 @@ int result, uintptr_t *tmpData, int conNum, int i, int j, int k) %{
         $1 = NULL;
         $2 = NULL;
         $3 = NULL;
+        return;
     } else {
-        $1         = new GSRow**[$4]();
-        $2         = new int [$4]();
-        $3         = new GSChar*[$4]();
+        $1         = new (nothrow) GSRow**[$4]();
+        $2         = new (nothrow) int [$4]();
+        $3         = new (nothrow) GSChar*[$4]();
+        if ($1 == NULL || $2 == NULL || $3 == NULL) {
+            delete [] $1;
+            delete [] $2;
+            delete [] $3;
+            SWIG_exception(SWIG_ValueError, "allocate new failed");
+        }
         tmpData = (uintptr_t *)$input.array;
         // set data for each container
         for (conNum = 0; conNum < $4; conNum++) {
             conData = (swig_ContainerListRow *)tmpData[conNum];
-            tmpConName = new char[conData->containerName.n + 1]();
+            tmpConName = new (nothrow) char[conData->containerName.n + 1]();
+            if (tmpConName == NULL) {
+                for (k = 0; k < conNum; k++) {
+                    delete [] $3[k];
+                    delete [] $1[k];
+                }
+                delete [] $1;
+                delete [] $2;
+                delete [] $3;
+                SWIG_exception(SWIG_ValueError, "allocate new failed");
+            }
             memcpy(tmpConName, conData->containerName.p, conData->containerName.n);
             $3[conNum]    = tmpConName;
             $2[conNum]    = conData->listSize;
             if ($2[conNum] == 0) {
+                for (k = 0; k <= conNum; k++) {
+                    delete [] $3[k];
+                }
+                for (k = 0; k < conNum; k++) {
+                    delete [] $1[k];
+                }
+                delete [] $1;
+                delete [] $2;
+                delete [] $3;
                 SWIG_exception(SWIG_ValueError, "number of row is null");
             } else {
-                $1[conNum] = new GSRow* [$2[conNum]]();
-                tmpContainer = arg1->get_container($3[conNum]);
+                $1[conNum] = new (nothrow) GSRow* [$2[conNum]]();
+                if ($1[conNum] == NULL) {
+                    for (k = 0; k < conNum; k++) {
+                        delete [] $1[k];
+                    }
+                    delete [] $1;
+                    delete [] $2;
+                    for (k = 0; k <= conNum; k++) {
+                        delete [] $3[k];
+                    }
+                    delete [] $3;
+                    SWIG_exception(SWIG_ValueError, "allocate new failed");
+                }
+                try {
+                    tmpContainer = arg1->get_container($3[conNum]);
+                    if (tmpContainer == NULL) {
+                        string errConName($3[conNum]);
+                        string errMessage = "Container for Multiput not exist: " + errConName;
+                        SWIG_exception(SWIG_ValueError, errMessage.c_str());
+                    }
+                } catch (griddb::GSException& e) {
+                    string innerErrMsg((&e)->what());
+                    string errMessage = "Get container info for Multiput Error: " + innerErrMsg;
+                    SWIG_exception(SWIG_ValueError, errMessage.c_str());
+                }
                 typeList = tmpContainer->getGSTypeList();
                 colNum = tmpContainer->getColumnCount();
-                sliceRows = new GoSlice[conData->listSize]();
+                sliceRows = new (nothrow) GoSlice[conData->listSize]();
                 for (i = 0; i < conData->listSize; i++) {
-                    fieldAddrs = new uintptr_t[colNum]();
+                    fieldAddrs = new (nothrow) uintptr_t[colNum]();
+                    if (fieldAddrs == NULL) {
+                        for (k = 0; k < i; k++) {
+                            delete [] (uintptr_t *)sliceRows[k].data;
+                        }
+                        delete [] sliceRows;
+                        for (k = 0; k <= conNum; k++) {
+                            delete [] $1[k];
+                        }
+                        delete [] $1;
+                        delete [] $2;
+                        for (k = 0; k <= conNum; k++) {
+                            delete [] $3[k];
+                        }
+                        delete [] $3;
+                        delete tmpContainer;
+                        SWIG_exception(SWIG_ValueError, "allocate new failed");
+                    }
                     sliceRows[i] = {fieldAddrs, colNum, colNum};
                 }
                 sliceListRow = {sliceRows, conData->listSize, conData->listSize};
                 result = eachElementRowStoreMulPut(conData->listRow, sliceListRow);
+
+                if (result < 0) {
+                    for (k = 0; k < conData->listSize; k++) {
+                        delete [] (uintptr_t *)sliceRows[k].data;
+                    }
+                    delete [] sliceRows;
+                    for (k = 0; k <= conNum; k++) {
+                        delete [] $1[k];
+                    }
+                    delete [] $1;
+                    delete [] $2;
+                    for (k = 0; k <= conNum; k++) {
+                        delete [] $3[k];
+                    }
+                    delete [] $3;
+                    delete tmpContainer;
+                    SWIG_exception(SWIG_ValueError, "Number of columns is not matched.");
+                }
                 // set data for each row
                 for (i = 0; i < conData->listSize; i++) {
                     GSResult ret = gsCreateRowByContainer(tmpContainer->getGSContainerPtr(), &$1[conNum][i]);
                     if (ret != GS_RESULT_OK) {
-                        for (j = 0; j < i; j++) {
-                            gsCloseRow(&$1[conNum][j]);
+                        for (k = 0; k < i; k++) {
+                            gsCloseRow(&$1[conNum][k]);
                         }
-                        for (j = 0; j < conData->listSize; j++) {
-                            delete [] (uintptr_t *)sliceRows[j].data;
+                        for (k = 0; k < conData->listSize; k++) {
+                            delete [] (uintptr_t *)sliceRows[k].data;
                         }
-                        delete sliceRows;
-                        for (j = 0; j <= conNum; j++) {
-                            delete [] $1[j];
+                        delete [] sliceRows;
+                        for (k = 0; k <= conNum; k++) {
+                            delete [] $1[k];
                         }
                         delete [] $1;
                         delete [] $2;
+                        for (k = 0; k <= conNum; k++) {
+                            delete [] $3[k];
+                        }
                         delete [] $3;
+                        delete tmpContainer;
                         SWIG_exception(SWIG_ValueError, "gsCreateRowByContainer failed");
-                    }
-                    if (colNum != sliceRows[i].len) {
-                        delete [] $1;
-                        delete [] $2;
-                        delete [] $3;
-                        for (j = 0; j < conData->listSize; j++) {
-                            delete [] (uintptr_t *)sliceRows[j].data;
-                        }
-                        delete sliceRows;
-                        SWIG_exception(SWIG_ValueError, "column number for store multi put row is not correct");
                     }
                     // set data for each field of row
                     fieldAddrs = (uintptr_t *)sliceRows[i].data;
                     for (j = 0; j < colNum; j++) {
-                        setRowFromObject($1[conNum][i], j, fieldAddrs[j], typeList[j]);
+                        try {
+                            setRowFromObject($1[conNum][i], j, fieldAddrs[j], typeList[j]);
+                        } catch (const std::runtime_error& e) {
+                            for (k  = 0; k < i; k++) {
+                                gsCloseRow(&$1[conNum][k]);
+                            }
+                            for (k = 0; k <= conNum; k++) {
+                                delete [] $1[k];
+                            }
+                            delete [] $1;
+                            delete [] $2;
+                            for (k = 0; k <= conNum; k++) {
+                                delete [] $3[k];
+                            }
+                            delete [] $3;
+                            for (k = i; k < conData->listSize; k++) {
+                                delete [] (uintptr_t *)sliceRows[k].data;
+                            }
+                            delete [] sliceRows;
+                            delete tmpContainer;
+                            SWIG_exception(SWIG_ValueError, e.what());
+                        }
                     }
                     delete [] (uintptr_t *)sliceRows[i].data;
                 }
-                delete sliceRows;
+                delete [] sliceRows;
                 // delete container after setting data for list of row
                 delete tmpContainer;
             }
@@ -2115,16 +2412,26 @@ int result, uintptr_t *tmpData, int conNum, int i, int j, int k) %{
 %}
 %typemap(in) (const GSRowKeyPredicateEntry* const * predicateList, size_t predicateCount)
 (swig_mapstringrowkeypredicate *mapper, GSRowKeyPredicateEntry *tmpEntry,
-GSChar *tmpStr, uintptr_t *tmpData, int i) %{
+GSChar *tmpStr, uintptr_t *tmpData, int i, int j) %{
     tmpData = (uintptr_t *)$input.array;
     $2 = $input.len;
     $1 = NULL;
     if ($2 > 0) {
-        tmpEntry = new GSRowKeyPredicateEntry[$2]();
+        tmpEntry = new (nothrow) GSRowKeyPredicateEntry[$2]();
+        if (tmpEntry == NULL) {
+            SWIG_exception(SWIG_ValueError, "Memory allocation for GSRowKeyPredicateEntry error");
+        }
         // set data for each element of entry array
         for (i = 0; i < $2; i++) {
             mapper = (swig_mapstringrowkeypredicate *)tmpData[i];
-            tmpStr = new GSChar[mapper->containerName.n + 1]();
+            tmpStr = new (nothrow) GSChar[mapper->containerName.n + 1]();
+            if (tmpStr == NULL) {
+                for (j = 0; j < i; j++) {
+                    delete[] tmpEntry[j].containerName;
+                }
+                delete[] tmpEntry;
+                SWIG_exception(SWIG_ValueError, "Memory allocation for container name error");
+            }
             memcpy(tmpStr, mapper->containerName.p, mapper->containerName.n);
             tmpEntry[i].containerName = tmpStr;
             tmpEntry[i].predicate = (GSRowKeyPredicate *)mapper->rowKeyPredicate->gs_ptr();
@@ -2153,42 +2460,106 @@ GSChar *tmpStr, uintptr_t *tmpData, int i) %{
     $5 = &tmpOrderFromInput;
 }
 %typemap(gotype) (GSContainerRowEntry **entryList, size_t* containerCount,
-int **colNumList, GSType*** typeList, int **orderFromInput) %{*interface{}%}
+int **colNumList, GSType*** typeList, int **orderFromInput) %{*[]interface{}%}
 %typemap(imtype) (GSContainerRowEntry **entryList, size_t* containerCount,
 int **colNumList, GSType*** typeList, int **orderFromInput) %{*[]swig_ContainerListRow%}
 %typemap(argout)
 (GSContainerRowEntry **entryList, size_t* containerCount, int **colNumList, GSType*** typeList, int **orderFromInput)
-(int i, int j, int k, swig_ContainerListRow *tmpEntry, GSChar *tmpStr,
+(int i, int j, int k, int l, swig_ContainerListRow *tmpEntry, GSChar *tmpStr,
 GoSlice *tmpsliceRow, GoSlice *tmpListRow, swig_uintptr *tmpFields,
 GSRow *tmpRow, GSContainerRowEntry *tmpEntryList) %{
     $input->len = *$2;
     $input->cap = *$2;
-    tmpEntry = new swig_ContainerListRow[$input->len]();
+    tmpEntry = new (nothrow) swig_ContainerListRow[$input->len]();
+    if (tmpEntry == NULL) {
+        SWIG_exception(SWIG_ValueError, "allocate memory for swig_ContainerListRow for multi_get failed");
+    }
     //set for each container
     for (i = 0; i < $input->len; i++) {
         // set containerName
         tmpEntryList = &((*$1)[((*$5)[i])]);
         tmpEntry[i].containerName.n = strlen(tmpEntryList->containerName);
-        tmpStr = new GSChar[tmpEntry[i].containerName.n]();
+        tmpStr = new (nothrow) GSChar[tmpEntry[i].containerName.n]();
+        if (tmpStr == NULL) {
+            for (k = 0; k < i; k++) {
+                delete [] tmpEntry[k].containerName.p;
+            }
+            delete [] tmpEntry;
+            SWIG_exception(SWIG_ValueError, "allocate memory for container name for multi_get failed");
+        }
         memcpy(tmpStr,  tmpEntryList->containerName, tmpEntry[i].containerName.n);
         tmpEntry[i].containerName.p = tmpStr;
         // set data for each row
         tmpEntry[i].listSize = tmpEntryList->rowCount;
-        tmpsliceRow          = new GoSlice[1]();
+        tmpsliceRow          = new (nothrow) GoSlice[1]();
+        if (tmpsliceRow == NULL) {
+            for (k = 0; k < i; k++) {
+                delete [] tmpEntry[k].containerName.p;
+            }
+            for (k = 0; k < i; k++) {
+                delete [] (GoSlice*)(((GoSlice*)tmpEntry[k].listRow)[0].data);
+                delete [] (GoSlice*)(tmpEntry[k].listRow);
+            }
+            delete [] tmpEntry;
+            SWIG_exception(SWIG_ValueError, "allocate memory for container name for multi_get failed");
+        }
         tmpsliceRow->len     = tmpEntry[i].listSize;
         tmpsliceRow->cap     = tmpEntry[i].listSize;
-        tmpListRow           = new GoSlice[tmpEntry[i].listSize]();
+
+        tmpListRow           = new (nothrow) GoSlice[tmpEntry[i].listSize]();
+        if (tmpListRow == NULL) {
+            delete [] tmpsliceRow;
+            for (k = 0; k < i + 1; k++) {
+                delete [] tmpEntry[k].containerName.p;
+            }
+            for (k = 0; k < i; k++) {
+                delete [] (GoSlice*)(((GoSlice*)tmpEntry[k].listRow)[0].data);
+                delete [] (GoSlice*)(tmpEntry[k].listRow);
+            }
+            delete [] tmpEntry;
+            SWIG_exception(SWIG_ValueError, "allocate memory for container name for multi_get failed");
+        }
+
         tmpsliceRow->data    = (void *)tmpListRow;
         tmpEntry[i].listRow  = (uintptr_t)tmpsliceRow;
         for (j = 0; j < tmpEntry[i].listSize; j++) {
             tmpListRow[j].len  = (*$3)[i];
             tmpListRow[j].cap  = (*$3)[i];
-            tmpFields = new swig_uintptr[(*$3)[i]]();
+            tmpFields = new (nothrow) swig_uintptr[(*$3)[i]]();
+            if (tmpFields == NULL) {
+                for (k = 0; k < i + 1; k++) {
+                    delete [] tmpEntry[k].containerName.p;
+                }
+                for (k = 0; k < i + 1; k++) {
+                    delete [] (GoSlice*)(((GoSlice*)tmpEntry[k].listRow)[0].data);
+                    delete [] (GoSlice*)(tmpEntry[k].listRow);
+                }
+                for (k = 0; k < j; k++) {
+                    delete [] (swig_uintptr*)tmpListRow[k].data;
+                }
+                delete [] tmpEntry;
+                SWIG_exception(SWIG_ValueError, "allocate memory for container name for multi_get failed");
+            }
             tmpListRow[j].data = (void *)tmpFields;
             // set data for output
             tmpRow = (GSRow*)(tmpEntryList->rowList[j]);
             for (k = 0; k < (*$3)[i]; k++) {
-                convertGSRowToObjectUintptr(&tmpFields[k], tmpRow, (*$4)[i][k], k, arg1->timestamp_output_with_float);
+                try {
+                    convertGSRowToObjectUintptr(&tmpFields[k], tmpRow, (*$4)[i][k], k, arg1->timestamp_output_with_float);
+                } catch (const std::runtime_error& e) {
+                    for (l = 0; l < i + 1; l++) {
+                        delete [] tmpEntry[l].containerName.p;
+                    }
+                    for (l = 0; l < i + 1; l++) {
+                        delete [] (GoSlice*)(((GoSlice*)tmpEntry[l].listRow)[0].data);
+                        delete [] (GoSlice*)(tmpEntry[l].listRow);
+                    }
+                    for (l = 0; l < j + 1; l++) {
+                        delete [] (swig_uintptr*)(tmpListRow[l].data);
+                    }
+                    delete [] tmpEntry;
+                    SWIG_exception(SWIG_ValueError, e.what());
+                }
             }
             gsCloseRow(&tmpRow);
         }
@@ -2205,26 +2576,6 @@ GSRow *tmpRow, GSContainerRowEntry *tmpEntryList) %{
     delete [] (*$5);
     $input->array = (void *)tmpEntry;
 %}
-%typemap(goargout) (GSContainerRowEntry **entryList,
-size_t* containerCount, int **colNumList, GSType*** typeList, int **orderFromInput) %{
-    slice := *(*[]swig_ContainerListRow)(unsafe.Pointer($1))
-    tmp := make(map[string][][]interface{})
-    for i := range slice {
-        tmpSliceRow := *(*[][]swig_uintptr)(unsafe.Pointer(slice[i].listRow))
-        tmpListRow  := make([][]interface{}, slice[i].listSize)
-        var containerName bytes.Buffer
-        containerName.WriteString(slice[i].containerName)
-        for j := range tmpSliceRow {
-            tmpListRow[j] = make([]interface{}, len(tmpSliceRow[j]))
-            for n := range tmpListRow[j] {
-                GoDataTOInterfaceUintptr(tmpSliceRow[j][n], &tmpListRow[j][n])
-            }
-        }
-        tmp[containerName.String()] = tmpListRow
-    }
-    C.freeStoreMultiGet(C.uintptr_t(uintptr(unsafe.Pointer($1))))
-    *$input = tmp
-%}
 
 /**
  * Typemap for QueryAnalysisEntry.get()
@@ -2237,16 +2588,49 @@ size_t* containerCount, int **colNumList, GSType*** typeList, int **orderFromInp
 %typemap(argout) (GSQueryAnalysisEntry* queryAnalysis)
 (long *tmpID, long *tmpDepth, GoString * tmpType, GoString * tmpValueType,
 GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
-    tmpID             = new long();
-    tmpDepth          = new long();
-    tmpType      = new GoString();
-    tmpValueType = new GoString();
-    tmpValue     = new GoString();
-    tmpStatement = new GoString();
-    tmpType->p      = new char[strlen($1->type)]();
-    tmpValueType->p = new char[strlen($1->valueType)]();
-    tmpValue->p     = new char[strlen($1->value)]();
-    tmpStatement->p = new char[strlen($1->statement)]();
+    tmpID             = new (nothrow) long();
+    tmpDepth          = new (nothrow) long();
+    tmpType      = new (nothrow) GoString();
+    tmpValueType = new (nothrow) GoString();
+    tmpValue     = new (nothrow) GoString();
+    tmpStatement = new (nothrow) GoString();
+
+    if (tmpID == NULL || tmpDepth == NULL || tmpType == NULL || tmpValueType == NULL || tmpValue == NULL || tmpStatement == NULL) {
+        delete tmpID;
+        delete tmpDepth;
+        delete tmpType;
+        delete tmpValueType;
+        delete tmpValue;
+        delete tmpStatement;
+        delete [] $1->type;
+        delete [] $1->valueType;
+        delete [] $1->value;
+        delete [] $1->statement;
+        SWIG_exception(SWIG_ValueError, "allocate memory for QueryAnalysisEntry.get failed");
+    }
+
+    tmpType->p      = new (nothrow) char[strlen($1->type)]();
+    tmpValueType->p = new (nothrow) char[strlen($1->valueType)]();
+    tmpValue->p     = new (nothrow) char[strlen($1->value)]();
+    tmpStatement->p = new (nothrow) char[strlen($1->statement)]();
+    
+    if (tmpType->p == NULL || tmpValueType->p == NULL || tmpValue->p == NULL || tmpStatement->p == NULL) {
+        delete [] tmpType->p;
+        delete [] tmpValueType->p;
+        delete [] tmpValue->p;
+        delete [] tmpStatement->p;
+        delete tmpID;
+        delete tmpDepth;
+        delete tmpType;
+        delete tmpValueType;
+        delete tmpValue;
+        delete tmpStatement;
+        delete [] $1->type;
+        delete [] $1->valueType;
+        delete [] $1->value;
+        delete [] $1->statement;
+        SWIG_exception(SWIG_ValueError, "allocate memory for QueryAnalysisEntry.get failed");
+    }
     *tmpID        = $1->id;
     *tmpDepth     = $1->depth;
     memcpy((void*)tmpType->p, $1->type, strlen($1->type));
@@ -2258,15 +2642,28 @@ GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
     tmpValue->n     = strlen($1->value);
     tmpStatement->n = strlen($1->statement);
 
-    delete $1->type;
-    delete $1->valueType;
-    delete $1->value;
-    delete $1->statement;
+    delete [] $1->type;
+    delete [] $1->valueType;
+    delete [] $1->value;
+    delete [] $1->statement;
 
     // set data for output
     $input->len = 6;
     $input->cap = 6;
-    tmp = new uintptr_t[6]();
+    tmp = new (nothrow) uintptr_t[6]();
+    if (tmp == NULL) {
+        delete [] tmpType->p;
+        delete [] tmpValueType->p;
+        delete [] tmpValue->p;
+        delete [] tmpStatement->p;
+        delete tmpID;
+        delete tmpDepth;
+        delete tmpType;
+        delete tmpValueType;
+        delete tmpValue;
+        delete tmpStatement;
+        SWIG_exception(SWIG_ValueError, "allocate memory for uintptr array for QueryAnalysisEntry.get failed");
+    }
     tmp[0] = reinterpret_cast<std::uintptr_t>(tmpID);
     tmp[1] = reinterpret_cast<std::uintptr_t>(tmpDepth);
     tmp[2] = reinterpret_cast<std::uintptr_t>(tmpType);
@@ -2309,9 +2706,18 @@ GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
 }
 %typemap(argout) (const GSChar * const ** stringList, size_t *size)
 (_gostring_ *sliceStr, int i, int k, char *tmpStr) %{
-    sliceStr = new _gostring_[*$2]();
+    sliceStr = new (nothrow) _gostring_[*$2]();
+    if (sliceStr == NULL) {
+        SWIG_exception(SWIG_ValueError, "allocate memory for _gostring_ for PartitionController.GetContainerNames failed");
+    }
     for (int i = 0; i < *$2; i++) {
-        tmpStr = new char[strlen((*$1)[i])]();
+        tmpStr = new (nothrow) char[strlen((*$1)[i])]();
+        if (tmpStr == NULL) {
+            for (k = 0; k < i; k++) {
+                delete [] sliceStr[k].p;
+            }
+            delete [] sliceStr;
+        }
         memcpy(tmpStr, (*$1)[i], strlen((*$1)[i]));
         sliceStr[i].n = strlen((*$1)[i]);
         sliceStr[i].p = tmpStr;
@@ -2335,33 +2741,34 @@ GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
 /**
  * Typemap for RowKeyPredicate.set_range()
 */
-%typemap(gotype) (griddb::Field* startKey) %{interface{}%}
-%typemap(imtype) (griddb::Field* startKey) %{uintptr%}
-%typemap(goin) (griddb::Field* startKey) %{
-    $result = (uintptr)(unsafe.Pointer(&$input))
+%typemap(gotype) (griddb::Field* startKey, griddb::Field* finishKey) %{interface{}, arg3 interface{}%}
+%typemap(imtype) (griddb::Field* startKey, griddb::Field* finishKey) %{[]uintptr%}
+%typemap(goin) (griddb::Field* startKey, griddb::Field* finishKey) %{
+    $result = make([]uintptr, 2)
+    $result[0] = (uintptr)(unsafe.Pointer(&arg2))
+    $result[1] = (uintptr)(unsafe.Pointer(&arg3))
 %}
-%typemap(in, fragment="convertObjectToFieldKey") (griddb::Field* startKey)
-(griddb::Field tmpFieldStart, uintptr_t tmpDataStart, GSType typeStartKey) %{
-    tmpDataStart = (uintptr_t)$input;
+
+%typemap(in, fragment="convertObjectToFieldKey") (griddb::Field* startKey, griddb::Field* finishKey)
+(griddb::Field tmpFieldStart, uintptr_t tmpDataStart, GSType typeStartKey,
+        griddb::Field tmpFieldFinish, uintptr_t tmpDataFinish, GSType typeFinishKey) %{
+    tmpDataStart = ((uintptr_t *)$input.array)[0];
     typeStartKey = arg1->get_key_type();
-    if (!convertObjectToFieldKey(tmpFieldStart, tmpDataStart, typeStartKey)) {
+    try {
+        convertObjectToFieldKey(tmpFieldStart, tmpDataStart, typeStartKey);
+    } catch (const std::runtime_error& e) {
         SWIG_exception(SWIG_ValueError, "can not convert interface to field for key for Container get row");
     }
     $1 = &tmpFieldStart;
-%}
-%typemap(gotype) (griddb::Field* finishKey) %{interface{}%}
-%typemap(imtype) (griddb::Field* finishKey) %{uintptr%}
-%typemap(goin) (griddb::Field* finishKey) %{
-    $result = (uintptr)(unsafe.Pointer(&$input))
-%}
-%typemap(in, fragment="convertObjectToFieldKey") (griddb::Field* finishKey)
-(griddb::Field tmpFieldFinish, uintptr_t tmpDataFinish, GSType typeFinishKey) %{
-    tmpDataFinish = (uintptr_t)$input;
+
+    tmpDataFinish = ((uintptr_t *)$input.array)[1];
     typeFinishKey = arg1->get_key_type();
-    if (!convertObjectToFieldKey(tmpFieldFinish, tmpDataFinish, typeFinishKey)) {
+    try {
+        convertObjectToFieldKey(tmpFieldFinish, tmpDataFinish, typeFinishKey);
+    } catch (const std::runtime_error& e) {
         SWIG_exception(SWIG_ValueError, "can not convert interface to field for key for Container get row");
     }
-    $1 = &tmpFieldFinish;
+    $2 = &tmpFieldFinish;
 %}
 
 /**
@@ -2382,10 +2789,15 @@ GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
     if ($2 <= 0) {
         SWIG_exception(SWIG_ValueError, "distinct keys incorrect");
     }
-    tmpField = new griddb::Field[$2]();
+    tmpField = new (nothrow) griddb::Field[$2]();
+    if (tmpField == NULL) {
+        SWIG_exception(SWIG_ValueError, "allocate new failed");
+    }
     GSType type = arg1->get_key_type();
     for (i = 0; i < $2; i++) {
-        if (!convertObjectToFieldKey(tmpField[i], tmpData[i], type)) {
+        try {
+            convertObjectToFieldKey(tmpField[i], tmpData[i], type);
+        } catch (const std::runtime_error& e) {
             delete [] tmpField;
             SWIG_exception(SWIG_ValueError, "can not convert interface to field for key for set_distinct_keys");
         }
@@ -2411,7 +2823,10 @@ GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
 (swig_uintptr *tmp) %{
     $input->len = 2;
     $input->cap = 2;
-    tmp = new swig_uintptr[$input->len]();
+    tmp = new (nothrow) swig_uintptr[$input->len]();
+    if (tmp == NULL) {
+        SWIG_exception(SWIG_ValueError, "allocate memory for swig_uintptr for RowKeyPredicate.get_range failed");
+    }
     if ($1->type == GS_TYPE_NULL) {
         tmp[0].type = GS_TYPE_NULL;
         tmp[1].type = GS_TYPE_NULL;
@@ -2447,7 +2862,10 @@ GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
 (swig_uintptr *tmp, int i) %{
     $input->len = *$2;
     $input->cap = *$2;
-    tmp = new swig_uintptr[$input->len]();
+    tmp = new (nothrow) swig_uintptr[$input->len]();
+    if (tmp == NULL) {
+        SWIG_exception(SWIG_ValueError, "allocate memory for RowKeyPredicate.get_distinct_keys failed");
+    }
     for (i = 0; i < $input->len; i++) {
         if (!convertFieldKeyToObjectUintptr(&tmp[i], (*$1)[i].type, &(*$1)[i], arg1->timestamp_output_with_float)) {
             delete [] tmp;
