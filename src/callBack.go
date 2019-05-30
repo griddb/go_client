@@ -5,7 +5,6 @@ import "C"
 import (
     "unsafe"
     "time"
-    "reflect"
 )
 
 const (
@@ -53,15 +52,15 @@ const (
     TYPE_TIMESTAMP
     TYPE_GEOMETRY
     TYPE_BLOB
-    TYPE_STRING_ARRAY
-    TYPE_BOOL_ARRAY
-    TYPE_BYTE_ARRAY
-    TYPE_SHORT_ARRAY
-    TYPE_INTEGER_ARRAY
-    TYPE_LONG_ARRAY
-    TYPE_FLOAT_ARRAY
-    TYPE_DOUBLE_ARRAY
-    TYPE_TIMESTAMP_ARRAY
+    // TYPE_STRING_ARRAY
+    // TYPE_BOOL_ARRAY
+    // TYPE_BYTE_ARRAY
+    // TYPE_SHORT_ARRAY
+    // TYPE_INTEGER_ARRAY
+    // TYPE_LONG_ARRAY
+    // TYPE_FLOAT_ARRAY
+    // TYPE_DOUBLE_ARRAY
+    // TYPE_TIMESTAMP_ARRAY
     TYPE_NULL = -1
 )
 const (
@@ -87,30 +86,24 @@ func lenTimestampArray(dataInput uintptr) (lenArray int64, convertResult int32) 
     return
 }
 
-//export eachElementTimestampArray
-func eachElementTimestampArray(dataInput uintptr, arrayElement []uintptr) (convertResult int32) {
-    tmpData := (*interface{})(unsafe.Pointer(dataInput))
-    data, g := (*tmpData).([]interface{})
-    if (g) {
-        for i := range data {
-            arrayElement[i] = (uintptr)(unsafe.Pointer(&data[i]))
-        }
-        convertResult = RESULT_OK
-    } else {
-        convertResult = RESULT_FALSE
-    }
-    return
-}
-
 //export eachElementRowStoreMulPut
 func eachElementRowStoreMulPut(dataInput uintptr, arrayElement [][]uintptr) (result int32){
     data := *(*[][]interface{})(unsafe.Pointer(dataInput))
+    if (len(data) != len(arrayElement)) {
+        result = RESULT_FALSE
+        return
+    }
     for i := range data {
-        for j := range data[i] {
-            if (len(data[i]) != len(arrayElement[i])) {
-                result = RESULT_FALSE
-                return
-            }
+        if (data[i] == nil) {
+            result = RESULT_FALSE
+            return
+        }
+
+        if (len(data[i]) != len(arrayElement[i])) {
+            result = RESULT_FALSE
+            return
+        }
+        for j := range data[i] {   
             arrayElement[i][j] = (uintptr)(unsafe.Pointer(&(data[i][j])))
         }
     }
@@ -153,13 +146,13 @@ func GetInterfaceArrayLength(dataInput uintptr, colType int) (length int, conver
         } else {
             convertResult = RESULT_FALSE
         }
-    } else if (colType == TYPE_STRING_ARRAY) {
-        value, ok := (*data).([]string)
-        if (ok) {
-            length = len(value)
-        } else {
-            convertResult = RESULT_FALSE
-        }
+    // } else if (colType == TYPE_STRING_ARRAY) {
+    //     value, ok := (*data).([]string)
+    //     if (ok) {
+    //         length = len(value)
+    //     } else {
+    //         convertResult = RESULT_FALSE
+    //     }
     } else {
         value, ok := (*data).([]interface{})
         if (ok) {
@@ -206,169 +199,6 @@ func SetForBlobString(dataInput uintptr, blob []byte) (convertResult int32) {
     return
 }
 
-//export SetForStringArray
-func SetForStringArray(dataInput uintptr, stringArray [][]byte) (convertResult int32) {
-
-    data := (*interface{})(unsafe.Pointer(dataInput))
-    convertResult = RESULT_OK
-    value, ok := (*data).([]string)
-    if (ok) {
-        for i := 0; i < len(value); i++ {
-            for j := 0; j < len(value[i]); j++ {
-                stringArray[i][j] = value[i][j]
-            }
-        }
-    } else {
-        convertResult = RESULT_FALSE
-    }
-    return
-}
-
-//export SetForLongArray
-func SetForLongArray(dataInput uintptr, longArray []int64, colType int) (convertResult int32) {
-
-    tmpData := (*interface{})(unsafe.Pointer(dataInput))
-    convertResult = RESULT_OK
-    data, g := (*tmpData).([]interface{})
-    if (g) {
-        for i := 0; i < len(data); i++ {
-            switch reflect.ValueOf(data[i]).Kind() {
-                case reflect.Bool: {
-                    if(colType != TYPE_BOOL_ARRAY) {
-                        convertResult = RESULT_FALSE
-                        return
-                    }
-                    value, ok := (data[i]).(bool)
-                    if(!ok) {
-                        convertResult = RESULT_FALSE
-                        return
-                    }
-                    if value {
-                        longArray[i] = 1
-                    } else {
-                        longArray[i] = 0
-                    }
-                }
-                case reflect.Int8: {
-                    value, ok := (data[i]).(int8)
-                    if(!ok) {
-                        convertResult = RESULT_FALSE
-                        return
-                    }
-                    longArray[i] = int64(value)
-                }
-                case reflect.Int16: {
-                    value, ok := (data[i]).(int16)
-                    if(!ok) {
-                        convertResult = RESULT_FALSE
-                        return
-                    }
-                    longArray[i] = int64(value)
-                }
-                case reflect.Int32: {
-                    value, ok := (data[i]).(int32)
-                    if(!ok) {
-                        convertResult = RESULT_FALSE
-                        return
-                    }
-                    longArray[i] = int64(value)
-                }
-                case reflect.Int: {
-                    value, ok := (data[i]).(int)
-                    if(!ok) {
-                        convertResult = RESULT_FALSE
-                        return
-                    }
-                    longArray[i] = int64(value)
-                }
-                case reflect.Int64: {
-                    value, ok := (data[i]).(int64)
-                    if(!ok) {
-                        convertResult = RESULT_FALSE
-                        return
-                    }
-                    longArray[i] = int64(value)
-                }
-                default:
-                    convertResult = RESULT_FALSE
-                    return
-            }
-        }
-    } else {
-        convertResult = RESULT_FALSE
-    }
-    return
-}
-
-//export SetForDoubleArray
-func SetForDoubleArray(dataInput uintptr, doubleArray []float64) (convertResult int32) {
-
-    tmpData := (*interface{})(unsafe.Pointer(dataInput))
-    convertResult = RESULT_OK
-    data, g := (*tmpData).([]interface{})
-    if (g) {
-        for i := 0; i < len(data); i++ {
-            switch reflect.ValueOf(data[i]).Kind() {
-            case reflect.Int8: {
-                value, ok := (data[i]).(int8)
-                if(!ok) {
-                    convertResult = RESULT_FALSE
-                }
-                doubleArray[i] = float64(value)
-            }
-            case reflect.Int16: {
-                value, ok := (data[i]).(int16)
-                if(!ok) {
-                    convertResult = RESULT_FALSE
-                }
-                doubleArray[i] = float64(value)
-            }
-            case reflect.Int32: {
-                value, ok := (data[i]).(int32)
-                if(!ok) {
-                    convertResult = RESULT_FALSE
-                }
-                doubleArray[i] = float64(value)
-            }
-            case reflect.Int: {
-                value, ok := (data[i]).(int)
-                if(!ok) {
-                    convertResult = RESULT_FALSE
-                }
-                doubleArray[i] = float64(value)
-            }
-            case reflect.Int64: {
-                value, ok := (data[i]).(int64)
-                if(!ok) {
-                    convertResult = RESULT_FALSE
-                }
-                doubleArray[i] = float64(value)
-            }
-            case reflect.Float32: {
-                value, ok := (data[i]).(float32)
-                if(!ok) {
-                    convertResult = RESULT_FALSE
-                }
-                doubleArray[i] = float64(value)
-            }
-            case reflect.Float64: {
-                value, ok := (data[i]).(float64)
-                if(!ok) {
-                    convertResult = RESULT_FALSE
-                }
-                doubleArray[i] = value
-            }
-            default:
-                convertResult = RESULT_FALSE
-                return
-            }
-        }
-    } else {
-        convertResult = RESULT_FALSE
-    }
-    return
-}
-
 //export GetNumericInterface
 func GetNumericInterface(dataInput uintptr, colType int) (
         mType int32,
@@ -382,9 +212,10 @@ func GetNumericInterface(dataInput uintptr, colType int) (
     case TYPE_BOOL, TYPE_BYTE, TYPE_SHORT, TYPE_INTEGER, TYPE_LONG: {
         convertResult = RESULT_OK
         mType = TYPE_LONG
-        {
-            value, ok := (*data).(bool)
-            if (ok) {
+        switch (*data).(type) {
+        case bool:
+            {
+                value, _ := (*data).(bool)
                 if (colType != TYPE_BOOL) {
                     convertResult = RESULT_FALSE
                 }
@@ -393,156 +224,133 @@ func GetNumericInterface(dataInput uintptr, colType int) (
                 }
                 return
             }
-        }
-        {
-            value, ok := (*data).(int8)
-            if (ok) {
-                asLong = (int64)(value)
+        case int8:
+            {
+                asLong = (int64)((*data).(int8))
                 return
             }
-        }
-        {
-            value, ok := (*data).(int16)
-            if (ok) {
-                asLong = (int64)(value)
+        case int16:
+            {
+                asLong = (int64)((*data).(int16))
                 return
             }
-        }
-        {
-            value, ok := (*data).(int32)
-            if (ok) {
-                asLong = (int64)(value)
+        case int32:
+            {
+                asLong = (int64)((*data).(int32))
                 return
             }
-        }
-        {
-            value, ok := (*data).(int)
-            if (ok) {
-                asLong = (int64)(value)
+        case int:
+            {
+                asLong = (int64)((*data).(int))
                 return
             }
-        }
-        {
-            value, ok := (*data).(int64)
-            if (ok) {
-                asLong = (int64)(value)
+        case int64:
+            {
+                asLong = (int64)((*data).(int64))
                 return
             }
+        default:
+            convertResult = RESULT_FALSE
+            return
         }
-        convertResult = RESULT_FALSE
-        return
     }
-    case TYPE_FLOAT, TYPE_DOUBLE:
+    case TYPE_FLOAT, TYPE_DOUBLE: {
         convertResult = RESULT_OK
         mType = TYPE_DOUBLE
-        {
-            value, ok := (*data).(int8)
-            if (ok) {
-                asDouble = (float64)(value)
+        switch (*data).(type) {
+        case int8: 
+            {
+                asDouble = (float64)((*data).(int8))
                 return
             }
-        }
-        {
-            value, ok := (*data).(int16)
-            if (ok) {
-                asDouble = (float64)(value)
+        case int16:
+            {
+                asDouble = (float64)((*data).(int16))
                 return
             }
-        }
-        {
-            value, ok := (*data).(int32)
-            if (ok) {
-                asDouble = (float64)(value)
+        case int32:
+            {
+                asDouble = (float64)((*data).(int32))
                 return
             }
-        }
-        {
-            value, ok := (*data).(int)
-            if (ok) {
-                asDouble = (float64)(value)
+        case int:
+            {
+                asDouble = (float64)((*data).(int))
                 return
             }
-        }
-        {
-            value, ok := (*data).(int64)
-            if (ok) {
-                asDouble = (float64)(value)
+        case int64:
+            {
+                asDouble = (float64)((*data).(int64))
                 return
             }
-        }
-        {
-            value, ok := (*data).(float32)
-            if (ok) {
-                asDouble = (float64)(value)
+        case float32:
+            {
+                asDouble = (float64)((*data).(float32))
                 return
             }
-        }
-        {
-            value, ok := (*data).(float64)
-            if (ok) {
-                asDouble = (float64)(value)
+        case float64:
+            {
+                asDouble = (float64)((*data).(float64))
                 return
             }
+        default:
+            convertResult = RESULT_FALSE
+            return
         }
-        convertResult = RESULT_FALSE
-        return
-    case TYPE_TIMESTAMP:
+    }
+    case TYPE_TIMESTAMP: {
         convertResult = RESULT_OK
         mType = TYPE_LONG
+        switch (*data).(type) {
         // cast for numerical input
-        {
-            value, ok := (*data).(int8)
-            if (ok) {
+        case int8:
+            {
+                value, _ := (*data).(int8)
                 asLong = (int64)(value) * MILI_SECOND
                 if (asLong > UTC_TIMESTAMP_MILI_MAX) {
                     convertResult = RESULT_FALSE
                 }
                 return
             }
-        }
-        {
-            value, ok := (*data).(int16)
-            if (ok) {
+        case int16:
+            {
+                value, _ := (*data).(int16)
                 asLong = (int64)(value) * MILI_SECOND
                 if (asLong > UTC_TIMESTAMP_MILI_MAX) {
                     convertResult = RESULT_FALSE
                 }
                 return
             }
-        }
-        {
-            value, ok := (*data).(int32)
-            if (ok) {
+        case int32:
+            {
+                value, _ := (*data).(int32)
                 asLong = (int64)(value) * MILI_SECOND
                 if (asLong > UTC_TIMESTAMP_MILI_MAX) {
                     convertResult = RESULT_FALSE
                 }
                 return
             }
-        }
-        {
-            value, ok := (*data).(int)
-            if (ok) {
+        case int:
+            {
+                value, _ := (*data).(int)
                 asLong = (int64)(value) * MILI_SECOND
                 if (asLong > UTC_TIMESTAMP_MILI_MAX) {
                     convertResult = RESULT_FALSE
                 }
                 return
             }
-        }
-        {
-            value, ok := (*data).(int64)
-            if (ok) {
+        case int64:
+            {
+                value, _ := (*data).(int64)
                 asLong = (int64)(value) * MILI_SECOND
                 if (asLong > UTC_TIMESTAMP_MILI_MAX) {
                     convertResult = RESULT_FALSE
                 }
                 return
             }
-        }
-        {
-            value, ok := (*data).(float32)
-            if (ok) {
+        case float32:
+            {
+                value, _ := (*data).(float32)
                 tmp := value * MILI_SECOND
                 if (tmp > UTC_TIMESTAMP_MILI_MAX) {
                     convertResult = RESULT_FALSE
@@ -551,10 +359,9 @@ func GetNumericInterface(dataInput uintptr, colType int) (
                 }
                 return
             }
-        }
-        {
-            value, ok := (*data).(float64)
-            if (ok) {
+        case float64:
+            {
+                value, _ := (*data).(float64)
                 tmp := value * MILI_SECOND
                 if (tmp > UTC_TIMESTAMP_MILI_MAX) {
                     convertResult = RESULT_FALSE
@@ -563,11 +370,10 @@ func GetNumericInterface(dataInput uintptr, colType int) (
                 }
                 return
             }
-        }
-        {
-            // cast for datetime input
-            value, ok := (*data).(time.Time)
-            if (ok) {
+        case time.Time:
+            {
+                // cast for datetime input
+                value, _ := (*data).(time.Time)
                 asLong   = value.Unix() // get second
                 tmpMili := int64(value.Nanosecond() / 1000000) // get mili second for timestamp
                 asLong   = asLong * 1000 + tmpMili
@@ -576,18 +382,19 @@ func GetNumericInterface(dataInput uintptr, colType int) (
                 }
                 return
             }
-        }
-        {
-            // cast for string input
-            value, ok := (*data).(string)
-            if (ok) {
+        case string:
+            {
+                // cast for string input
+                value, _ := (*data).(string)
                 mType = TYPE_STRING
                 asLong = int64(len(value))
                 return
             }
+        default:
+            convertResult = RESULT_FALSE
+            return
         }
-        convertResult = RESULT_FALSE
-        return
+    }
     default:
         convertResult = RESULT_FALSE
         return
@@ -617,23 +424,33 @@ func lenColumnName(dataInput uintptr) (lenName int64, convertResult int32) {
 func getColumnInfo(dataInput uintptr, colName []byte) (mType int64, option int64, convertResult int32) {
     data := *(*[]interface{})(unsafe.Pointer(dataInput))
     convertResult = RESULT_OK
-    if (len(data) <= 0 || len(data) >= 4) {
+    if (len(data) != 2 && len(data) != 3) {
         convertResult = RESULT_FALSE
         return
     }
     value, ok := (data[0]).(string)
-    if (ok) {
-        for i := 0; i < len(value); i++ {
-            colName[i] = value[i]
-        }
-        mType = int64(data[1].(int))
-        if (len(data) == 3) {
-            option = int64(data[2].(int))
-        } else {
-            option = 0
-        }
-    } else {
+    if (!ok) {
         convertResult = RESULT_FALSE
+        return
+    }
+    for i := 0; i < len(value); i++ {
+        colName[i] = value[i]
+    }
+    mTypeTmp, ok2 := data[1].(int)
+    if (!ok2) {
+        convertResult = RESULT_FALSE
+        return
+    }
+    mType = int64(mTypeTmp)
+    if (len(data) == 3) {
+        optionTmp, ok3 := data[2].(int)
+        if (!ok3) {
+            convertResult = RESULT_FALSE
+            return
+        }
+        option = int64(optionTmp)
+    } else {
+        option = 0
     }
     return
 }

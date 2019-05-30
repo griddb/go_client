@@ -18,9 +18,12 @@
 #define _QUERY_H_
 
 #include <memory>
+
 #include "gridstore.h"
 #include "RowSet.h"
 #include "GSException.h"
+
+#define INTEGER_MAX 2147483647 //max rows for query
 using namespace std;
 
 namespace griddb {
@@ -28,6 +31,7 @@ namespace griddb {
 /**
  * Convert from GSQuery
  */
+
 class Query {
     friend class Container;
     private:

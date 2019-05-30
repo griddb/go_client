@@ -16,7 +16,16 @@
 
 #ifndef _STORE_FACTORY_H_
 #define _STORE_FACTORY_H_
-#define CLIENT_VERSION "GridDB Go Client 0.8"
+
+#ifdef GRIDDB_GO
+#define CLIENT_VERSION "Go Client for GridDB V4.2"
+#elif GRIDDB_PYTHON
+#define CLIENT_VERSION "Python Client for GridDB V4.2"
+#elif GRIDDB_NODEJS
+#define CLIENT_VERSION "Node.js Client for GridDB V4.2"
+#else
+#error "Client version is not defined"
+#endif
 
 #include <map>
 #include <string>
@@ -24,6 +33,7 @@
 #include "gridstore.h"
 #include "Store.h"
 #include "GSException.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -44,7 +54,6 @@ class StoreFactory {
         Store* get_store(const char* host=NULL, int32_t port=0, const char* cluster_name=NULL,
                 const char* database=NULL, const char* username=NULL, const char* password=NULL,
                 const char* notification_member=NULL, const char* notification_provider=NULL);
-        void set_properties(const GSPropertyEntry* props, int propsCount);
         string get_version();
 
     private:
