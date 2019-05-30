@@ -16,16 +16,7 @@
 
 #ifndef _STORE_FACTORY_H_
 #define _STORE_FACTORY_H_
-
-#ifdef GRIDDB_GO
-#define CLIENT_VERSION "Go Client for GridDB V4.2"
-#elif GRIDDB_PYTHON
-#define CLIENT_VERSION "Python Client for GridDB V4.2"
-#elif GRIDDB_NODEJS
-#define CLIENT_VERSION "Node.js Client for GridDB V4.2"
-#else
-#error "Client version is not defined"
-#endif
+#define CLIENT_VERSION "GridDB Go Client 0.8"
 
 #include <map>
 #include <string>
