@@ -8,11 +8,11 @@ GridDB Go Client is developed using GridDB C Client and [SWIG](http://www.swig.o
 
 Building of the library and execution of the sample programs have been checked in the following environment.
 
-    OS:              CentOS 6.7(x64)
+    OS:              CentOS 7.6(x64)
     SWIG:            3.0.12
-    GCC:             4.4.7
+    GCC:             4.8.5
     Go:              1.9
-    GridDB Server and C Client:   4.0 CE / 3.0 CE
+    GridDB Server and C Client:   4.2 CE
 
 ## QuickStart
 ### Preparations
@@ -86,7 +86,6 @@ Note:
 1. After calling a method getting GridDB object, user must call DeleteClassName() function for each object.
    If possible, we recommend to use a defer of the DeleteClassName call like sample1.go.
 2. The current API might be changed in the next version. e.g. ContainerInfo()
-3. When you use GridDB V3.0 CE, please replace gridstore.h with gridstoreForV3.0.h on include/ folder and build sources.
 
 ## Community
 
