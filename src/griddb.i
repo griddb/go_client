@@ -94,7 +94,6 @@
 %shared_ptr(griddb::TimeSeriesProperties)
 %shared_ptr(griddb::ExpirationInfo)
 %shared_ptr(griddb::ContainerInfo)
-%shared_ptr(griddb::Row)
 %shared_ptr(griddb::QueryAnalysisEntry)
 %shared_ptr(griddb::RowSet)
 %shared_ptr(griddb::Query)
