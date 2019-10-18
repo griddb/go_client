@@ -1006,8 +1006,8 @@ void freeStoreMultiGet(uintptr_t data) {
 void freeQueryEntryGet(uintptr_t data) {
     _goslice_ *slice = (_goslice_ *)(data);
     uintptr_t * tmpData = (uintptr_t *) (slice->array);
-    delete ((long *)tmpData[0]);
-    delete ((long *)tmpData[1]);
+    delete ((int32_t *)tmpData[0]);
+    delete ((int32_t *)tmpData[1]);
     GoString *type = (GoString *)tmpData[2];
     GoString *valueType = (GoString *)tmpData[3];
     GoString *value = (GoString *)tmpData[4];
@@ -1893,7 +1893,7 @@ int k, lenColumnName_return nameData, getColumnInfo_return result, GoSlice tmpSl
     }
     switch ($1->type) {
     case GS_TYPE_LONG: {
-        long *tmpGo = new (nothrow) long();
+        int64_t *tmpGo = new (nothrow) int64_t();
         if (tmpGo == NULL) {
             delete [] tmp;
             SWIG_exception(SWIG_ValueError, "allocate memory for AggregationResult.get failed");
@@ -2586,10 +2586,10 @@ GSRow *tmpRow, GSContainerRowEntry *tmpEntryList) %{
     $1 = &queryAnalysis1;
 }
 %typemap(argout) (GSQueryAnalysisEntry* queryAnalysis)
-(long *tmpID, long *tmpDepth, GoString * tmpType, GoString * tmpValueType,
+(int32_t *tmpID, int32_t *tmpDepth, GoString * tmpType, GoString * tmpValueType,
 GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
-    tmpID             = new (nothrow) long();
-    tmpDepth          = new (nothrow) long();
+    tmpID             = new (nothrow) int32_t();
+    tmpDepth          = new (nothrow) int32_t();
     tmpType      = new (nothrow) GoString();
     tmpValueType = new (nothrow) GoString();
     tmpValue     = new (nothrow) GoString();
@@ -2675,8 +2675,8 @@ GoString * tmpValue, GoString * tmpStatement, uintptr_t *tmp)%{
 %typemap(goargout) (GSQueryAnalysisEntry* queryAnalysis) %{
     slice := *(*[]uintptr)(unsafe.Pointer($1))
     tmp := make([]interface{}, len(slice), len(slice))
-    tmp[0] = *(*int)(unsafe.Pointer(slice[0]))
-    tmp[1] = *(*int)(unsafe.Pointer(slice[1]))
+    tmp[0] = int(*(*int32)(unsafe.Pointer(slice[0])))
+    tmp[1] = int(*(*int32)(unsafe.Pointer(slice[1])))
     var buffer2 bytes.Buffer
     buffer2.WriteString(*(*string)(unsafe.Pointer(slice[2])))
     tmp[2] = buffer2.String()
