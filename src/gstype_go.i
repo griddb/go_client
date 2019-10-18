@@ -13,6 +13,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
+%go_import("fmt"
+/*
+extern void freeFieldDataForRow(uintptr_t data);
+extern void freeColumnInfo(uintptr_t data);
+extern void freeQueryEntryGet(uintptr_t data);
+extern void freePartitionConName(uintptr_t data);
+extern void freeStoreMultiGet(uintptr_t data);
+*/
+// #include <stdlib.h>
+import "C"
+)
 %{
 #include <limits>
 #include "_cgo_export.h"
@@ -859,7 +870,6 @@ struct swig_columnInfo {
 };
 %}
 
-%go_import("fmt")
 %go_import("math")
 %go_import("reflect")
 %go_import("time")
