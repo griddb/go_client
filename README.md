@@ -8,32 +8,42 @@ GridDB Go Client is developed using GridDB C Client and [SWIG](http://www.swig.o
 
 Building of the library and execution of the sample programs have been checked in the following environment.
 
-    OS:              CentOS 7.6(x64)
-    SWIG:            3.0.12
-    GCC:             4.8.5
-    Go:              1.9
-    GridDB Server and C Client:   4.2 CE
+    OS: CentOS 7.6(x64) (GCC 4.8.5)
+    SWIG: 3.0.12
+    Go: 1.12
+    GridDB C client: V4.2 CE(Community Edition)
+    GridDB server: V4.2 CE, CentOS 7.6(x64) (GCC 4.8.5)
 
-## QuickStart
+    OS: Ubuntu 18.04(x64) (gcc 7.3.0)
+    SWIG: 3.0.12
+    Go: 1.12
+    GridDB C client: V4.2 CE (Note: If you build from source code, please use GCC 4.8.5.)
+    GridDB server: V4.2 CE, Ubuntu 18.04(x64) (Note: If you build from source code, please use GCC 4.8.5.)
+    
+    OS: Windows 10(x64) (gdm64-gcc 5.1.0)
+    SWIG: 3.0.12
+    Go: 1.12
+    GridDB C client: V4.2 CE
+    GridDB server: V4.2 CE, CentOS 7.6(x64) (GCC 4.8.5)
+
+## QuickStart (CentOS, Ubuntu)
 ### Preparations
 
 Install SWIG as below.
-
-    $ wget https://sourceforge.net/projects/pcre/files/pcre/8.39/pcre-8.39.tar.gz
-    $ tar xvfz pcre-8.39.tar.gz
-    $ cd pcre-8.39
-    $ ./configure
-    $ make
-    $ make install
 
     $ wget https://prdownloads.sourceforge.net/swig/swig-3.0.12.tar.gz
     $ tar xvfz swig-3.0.12.tar.gz
     $ cd swig-3.0.12
     $ ./configure
     $ make
-    $ make install
+    $ sudo make install
+   
+    Note: If CentOS, you might need to install pcre in advance.
+    $ sudo yum install pcre2-devel.x86_64
 
-Install Go and GridDB C Client.
+Install Go.
+
+Install [GridDB Server](https://github.com/griddb/griddb_nosql) and [C Client](https://github.com/griddb/c_client). (Note: If you build them from source code, please use GCC 4.8.5.) 
 
 Set LIBRARY_PATH. 
 
@@ -64,6 +74,41 @@ GridDB Server need to be started in advance.
         $ go run sample/sample1.go <GridDB notification address> <GridDB notification port>
             <GridDB cluster name> <GridDB user> <GridDB password>
           -->Person: name=name02 status=false count=1 lob=[65, 66, 67, 68, 69, 70, 71, 72, 73, 74]
+
+## QuickStart (Windows)
+### Preparations
+
+Install SWIG as below.
+- Download zip package from https://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.12/swigwin-3.0.12.zip/download
+- Extract the zip package then set PATH variable for swig tool.
+
+Install GO
+- Download and install package from https://dl.google.com/go/go1.12.8.windows-amd64.msi
+
+Install [GridDB Server](https://github.com/griddb/griddb_nosql) on CentOS. (Note: If you build them from source code, please use GCC 4.8.5.) 
+
+Install GridDB C Client.
+- Please refer to https://github.com/griddb/c_client to install GridDB C client.
+- After installing GridDB C client, create folder <go_client>\libs and store gridstore_c.dll (not use gridstore_c.lib) into it.
+
+Install tdm64-gcc
+- Download and install package from http://sourceforge.net/projects/tdm-gcc/files/TDM-GCC%20Installer/tdm64-gcc-5.1.0-2.exe/download
+
+### Build and Run in cmd
+	
+    1. Go to <go_client> folder and run script:
+
+    $ build.bat
+
+### How to run sample
+
+GridDB Server need to be started in advance.
+
+    1. The command to run sample
+
+        $ go run sample/sample1.go <GridDB notification address> <GridDB notification port>
+            <GridDB cluster name> <GridDB user> <GridDB password>
+          -->[ 'name01', false, 1, <Buffer 41 42 43 44 45 46 47 48 49 4a> ]
 
 ## Function
 
