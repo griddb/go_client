@@ -1,5 +1,7 @@
 package griddb_go
 
+// #cgo CXXFLAGS: -DGRIDDB_GO -std=c++0x
+// #cgo LDFLAGS: -lrt -lgridstore
 import "C"
 
 import (

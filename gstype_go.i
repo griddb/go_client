@@ -21,6 +21,8 @@ extern void freeQueryEntryGet(uintptr_t data);
 extern void freePartitionConName(uintptr_t data);
 extern void freeStoreMultiGet(uintptr_t data);
 */
+// #cgo CXXFLAGS: -DGRIDDB_GO -std=c++0x
+// #cgo LDFLAGS: -lrt -lgridstore
 // #include <stdlib.h>
 import "C"
 )
