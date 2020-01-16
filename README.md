@@ -43,33 +43,37 @@ Install SWIG as below.
 
 Install Go.
 
-Install [GridDB Server](https://github.com/griddb/griddb_nosql) and [C Client](https://github.com/griddb/c_client). (Note: If you build them from source code, please use GCC 4.8.5.) 
+Install [GridDB Server](https://github.com/griddb/griddb_nosql) and [C Client](https://github.com/griddb/c_client). 
 
-Set LIBRARY_PATH. 
+Note: 
+- If you build Server or C Client from source code, please use GCC 4.8.5.
+- If you build C Client from source code, please set LIBRARY_PATH and LD_LIBRARY_PATH.
 
-    export LIBRARY_PATH=$LIBRARY_PATH:<C client library file directory path>
+    Ex.)  
+    $ export LIBRARY_PATH=$LIBRARY_PATH:$C_CLIENT_HOME/bin  
+    $ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$C_CLIENT_HOME/bin
 
 ### Build and Run 
 
-    1. Set the GOPATH variable for griddb Go module files.
+    1. Set the GOPATH variable for Go module files.
 
-        $ export GOPATH=$GOPATH:<installed directory path>
+    2. Get Go client source code.
 
-    2. Execute the command on project directory.
+        $ go get github.com/griddb/go_client
 
-        $ make
+    3. Run script to generate resource and install Go client
 
-    3. Import "github.com/griddb/go_client" in Go.
+        $ cd $GOPATH/src/github.comgriddb/go_client
+        $ ./run_swig.sh
+        $ go install
+
+    4. Import "github.com/griddb/go_client" in Go.
 
 ### How to run sample
 
 GridDB Server need to be started in advance.
 
-    1. Set LD_LIBRARY_PATH
-
-        export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:<C client library file directory path>
-
-    2. The command to run sample
+    1. The command to run sample
 
         $ go run sample/sample1.go <GridDB notification address> <GridDB notification port>
             <GridDB cluster name> <GridDB user> <GridDB password>
@@ -91,20 +95,38 @@ Install GridDB C Client.
 - Please refer to https://github.com/griddb/c_client to install GridDB C client.
 - After installing GridDB C client, create folder <go_client>\libs and store gridstore_c.dll (not use gridstore_c.lib) into it.
 
+Set LIBRARY_PATH.
+
+    $ set LIBRARY_PATH=%LIBRARY_PATH%:<C client library file directory path>
+
 Install tdm64-gcc
 - Download and install package from http://sourceforge.net/projects/tdm-gcc/files/TDM-GCC%20Installer/tdm64-gcc-5.1.0-2.exe/download
 
 ### Build and Run in cmd
-	
-    1. Go to <go_client> folder and run script:
 
-    $ build.bat
+    1. Set the GOPATH variable for Go module files.
+
+    2. Get Go client source code.
+
+        $ go get github.com/griddb/go_client
+
+    3. Run script to generate resource and install Go client
+
+        $ cd %GOPATH%/src/github.com/griddb/go_client
+        $ ./run_swig.bat
+        $ go install
+
+    4. Import "github.com/griddb/go_client" in Go.
 
 ### How to run sample
 
 GridDB Server need to be started in advance.
 
-    1. The command to run sample
+    1. Set PATH
+
+        $ set PATH=%PATH%:<C client library file directory path>
+
+    2. The command to run sample
 
         $ go run sample/sample1.go <GridDB notification address> <GridDB notification port>
             <GridDB cluster name> <GridDB user> <GridDB password>
