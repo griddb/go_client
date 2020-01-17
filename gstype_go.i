@@ -13,17 +13,17 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */
-%go_import("fmt"
-/*
+%insert(cgo_comment_typedefs) %{
 extern void freeFieldDataForRow(uintptr_t data);
 extern void freeColumnInfo(uintptr_t data);
 extern void freeQueryEntryGet(uintptr_t data);
 extern void freePartitionConName(uintptr_t data);
 extern void freeStoreMultiGet(uintptr_t data);
-*/
-// #include <stdlib.h>
-import "C"
-)
+#include <stdlib.h>
+#cgo CXXFLAGS: -DGRIDDB_GO -std=c++0x
+#cgo linux LDFLAGS: -lgridstore
+#cgo windows LDFLAGS: -lgridstore_c
+%}
 %{
 #include <limits>
 #include "_cgo_export.h"
@@ -870,6 +870,7 @@ struct swig_columnInfo {
 };
 %}
 
+%go_import("fmt")
 %go_import("math")
 %go_import("reflect")
 %go_import("time")
