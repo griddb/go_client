@@ -59,7 +59,7 @@ Note:
 
     2. Get Go client source code.
 
-        $ go get github.com/griddb/go_client
+        $ go get -d github.com/griddb/go_client
 
     3. Run script to generate resource and install Go client
 
@@ -108,7 +108,7 @@ Install tdm64-gcc
 
     2. Get Go client source code.
 
-        $ go get github.com/griddb/go_client
+        $ go get -d github.com/griddb/go_client
 
     3. Run script to generate resource and install Go client
 
