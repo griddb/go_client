@@ -19,6 +19,7 @@
 %ignore griddb::Container::getColumnCount;
 %ignore griddb::Container::getGSRowPtr;
 %ignore griddb::ContainerInfo::gs_info;
+%ignore griddb::Field::type;
 %ignore griddb::Field;
 %ignore griddb::Query::gs_ptr;
 %ignore griddb::RowKeyPredicate::gs_ptr;

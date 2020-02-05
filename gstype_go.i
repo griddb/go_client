@@ -466,6 +466,7 @@ namespace griddb {
 %rename(Wrapped_next_row) RowSet::next_row;
 %rename(Wrapped_update) RowSet::update;
 %rename(Wrapped_remove) RowSet::remove;
+%rename(Wrapped_type) RowSet::type;
 %rename(Wrapped_get_next_query_analysis) RowSet::get_next_query_analysis;
 %rename(Wrapped_get_next_aggregation) RowSet::get_next_aggregation;
 }
@@ -473,12 +474,17 @@ namespace griddb {
 type RowSet interface {
     Wrapped_RowSet
     Remove() (err error)
+    GetType() (rowSetType int)
     Update(row []interface{}) (err error)
     NextRow() (row []interface{} , err error)
     NextQueryAnalysis() (mQueryAnalysis QueryAnalysisEntry, err error)
     NextAggregation() (mAggregationResult AggregationResult, err error)
     SetTimestampOutput(isFloat bool)
     GetTimestampOutput() (isFloat bool)
+}
+func (e SwigcptrWrapped_RowSet) GetType() (rowSetType int) {
+    rowSetType = e.Wrapped_type()
+    return
 }
 func (e SwigcptrWrapped_RowSet) SetTimestampOutput(isFloat bool) {
     e.SetTimestamp_output_with_float(isFloat)
