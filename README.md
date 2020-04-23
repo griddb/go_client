@@ -63,7 +63,7 @@ Note:
 
     3. Run script to generate resource and install Go client
 
-        $ cd $GOPATH/src/github.comgriddb/go_client
+        $ cd $GOPATH/src/github.com/griddb/go_client
         $ ./run_swig.sh
         $ go install
 
