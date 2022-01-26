@@ -8,32 +8,33 @@ GridDB Go Client is developed using GridDB C Client and [SWIG](http://www.swig.o
 
 Building of the library and execution of the sample programs have been checked in the following environment.
 
-    OS: CentOS 7.6(x64) (GCC 4.8.5)
-    SWIG: 3.0.12
-    Go: 1.12
-    GridDB C client: V4.2 CE(Community Edition)
-    GridDB server: V4.2 CE, CentOS 7.6(x64) (GCC 4.8.5)
+    OS: CentOS 7.9(x64) (GCC 4.8.5)
+    SWIG: 4.0.2
+    Go: 1.16
+    GridDB C client: V4.6 CE(Community Edition)
+    GridDB server: V4.6 CE, CentOS 7.9(x64) (GCC 4.8.5)
 
     OS: Ubuntu 18.04(x64) (gcc 7.3.0)
-    SWIG: 3.0.12
-    Go: 1.12
-    GridDB C client: V4.2 CE (Note: If you build from source code, please use GCC 4.8.5.)
-    GridDB server: V4.2 CE, Ubuntu 18.04(x64) (Note: If you build from source code, please use GCC 4.8.5.)
+    SWIG: 4.0.2
+    Go: 1.16
+    GridDB C client: V4.6 CE
+    GridDB server: V4.6 CE, Ubuntu 18.04(x64) (Note: If you build from source code, please use GCC 4.8.5.)
     
-    OS: Windows 10(x64) (gdm64-gcc 5.1.0)
-    SWIG: 3.0.12
-    Go: 1.12
-    GridDB C client: V4.2 CE
-    GridDB server: V4.2 CE, CentOS 7.6(x64) (GCC 4.8.5)
+    OS: Windows 10(x64) (gdm64-gcc 10.3.0)
+    SWIG: 4.0.2
+    Go: 1.16
+    GridDB C client: V4.6 CE
+    GridDB server: V4.6 CE, CentOS 7.9(x64) (GCC 4.8.5)
 
 ## QuickStart (CentOS, Ubuntu)
 ### Preparations
 
 Install SWIG as below.
 
-    $ wget https://prdownloads.sourceforge.net/swig/swig-3.0.12.tar.gz
-    $ tar xvfz swig-3.0.12.tar.gz
-    $ cd swig-3.0.12
+    $ wget https://prdownloads.sourceforge.net/swig/swig-4.0.2.tar.gz
+    $ tar xvfz swig-4.0.2.tar.gz
+    $ cd swig-4.0.2
+    $ ./autogen.sh
     $ ./configure
     $ make
     $ sudo make install
@@ -43,10 +44,10 @@ Install SWIG as below.
 
 Install Go.
 
-Install [GridDB Server](https://github.com/griddb/griddb_nosql) and [C Client](https://github.com/griddb/c_client). 
+Install [GridDB Server](https://github.com/griddb/griddb) and [C Client](https://github.com/griddb/c_client). 
 
 Note: 
-- If you build Server or C Client from source code, please use GCC 4.8.5.
+- If you build Server from source code, please use GCC 4.8.5.
 - If you build C Client from source code, please set LIBRARY_PATH and LD_LIBRARY_PATH.
 
     Ex.)  
@@ -59,6 +60,7 @@ Note:
 
     2. Get Go client source code.
 
+        $ go env -w GO111MODULE=off
         $ go get -d github.com/griddb/go_client
 
     3. Run script to generate resource and install Go client
@@ -83,13 +85,13 @@ GridDB Server need to be started in advance.
 ### Preparations
 
 Install SWIG as below.
-- Download zip package from https://sourceforge.net/projects/swig/files/swigwin/swigwin-3.0.12/swigwin-3.0.12.zip/download
+- Download zip package from https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip/download
 - Extract the zip package then set PATH variable for swig tool.
 
 Install GO
-- Download and install package from https://dl.google.com/go/go1.12.8.windows-amd64.msi
+- Download and install package from https://dl.google.com/go/go1.16.2.windows-amd64.msi
 
-Install [GridDB Server](https://github.com/griddb/griddb_nosql) on CentOS. (Note: If you build them from source code, please use GCC 4.8.5.) 
+Install [GridDB Server](https://github.com/griddb/griddb) on CentOS. (Note: If you build them from source code, please use GCC 4.8.5.) 
 
 Install GridDB C Client.
 - Please refer to https://github.com/griddb/c_client to install GridDB C client.
@@ -100,7 +102,7 @@ Set LIBRARY_PATH.
     $ set LIBRARY_PATH=%LIBRARY_PATH%:<C client library file directory path>
 
 Install tdm64-gcc
-- Download and install package from http://sourceforge.net/projects/tdm-gcc/files/TDM-GCC%20Installer/tdm64-gcc-5.1.0-2.exe/download
+- Download and install package from https://sourceforge.net/projects/tdm-gcc/files/v10.3.0-tdm64-2/tdm64-gcc-10.3.0-2.exe/download
 
 ### Build and Run in cmd
 
@@ -108,6 +110,7 @@ Install tdm64-gcc
 
     2. Get Go client source code.
 
+        $ go env -w GO111MODULE=off
         $ go get -d github.com/griddb/go_client
 
     3. Run script to generate resource and install Go client
