@@ -2203,12 +2203,13 @@ uintptr_t *tmpData, GoSlice elements, uintptr_t *tmpfield, int i, int k) %{
 %typemap(goin) (GSRow*** listRow, const int *listRowContainerCount, const char ** listContainerName, size_t containerCount) %{
     tmp    := make([]swig_ContainerListRow, len($input))
     $result = make([]uintptr, len($input))
+    rowListArr := make([][][]interface{}, len($input))
     i := 0
     for con := range $input {
         tmp[i].containerName = con
         tmp[i].listSize      = int32(len($input[con]))
-        tmpSlice := $input[con]
-        tmp[i].listRow       = (uintptr)(unsafe.Pointer(&tmpSlice))
+        rowListArr[i]        = $input[con]
+        tmp[i].listRow       = (uintptr)(unsafe.Pointer(&rowListArr[i]))
         $result[i]           = (uintptr)(unsafe.Pointer(&tmp[i]))
         i++
     }
