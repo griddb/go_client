@@ -10,21 +10,21 @@ Building of the library and execution of the sample programs have been checked i
 
     OS: CentOS 7.9(x64) (GCC 4.8.5)
     SWIG: 4.0.2
-    Go: 1.16
-    GridDB C client: V4.6 CE(Community Edition)
-    GridDB server: V4.6 CE, CentOS 7.9(x64) (GCC 4.8.5)
+    Go: 1.16/1.18
+    GridDB C client: V5.0 CE(Community Edition)
+    GridDB server: V5.0 CE, CentOS 7.9(x64) (GCC 4.8.5)
 
-    OS: Ubuntu 18.04(x64) (gcc 7.3.0)
+    OS: Ubuntu 18.04(x64) (GCC 7.3.0) / 20.04(x64) (GCC 9.4.0)
     SWIG: 4.0.2
-    Go: 1.16
-    GridDB C client: V4.6 CE
-    GridDB server: V4.6 CE, Ubuntu 18.04(x64) (Note: If you build from source code, please use GCC 4.8.5.)
+    Go: 1.16/1.18
+    GridDB C client: V5.0 CE
+    GridDB server: V5.0 CE, Ubuntu 18.04(x64) (Note: If you build from source code, please use GCC 4.8.5.)
     
     OS: Windows 10(x64) (gdm64-gcc 10.3.0)
     SWIG: 4.0.2
-    Go: 1.16
-    GridDB C client: V4.6 CE
-    GridDB server: V4.6 CE, CentOS 7.9(x64) (GCC 4.8.5)
+    Go: 1.16/1.18
+    GridDB C client: V5.0 CE
+    GridDB server: V5.0 CE, CentOS 7.9(x64) (GCC 4.8.5)
 
 ## QuickStart (CentOS, Ubuntu)
 ### Preparations
@@ -145,9 +145,8 @@ GridDB Server need to be started in advance.
 
 (not available)
 - GEOMETRY, Array type for GridDB
-- timeseries compression
 - timeseries-specific function like gsAggregateTimeSeries, gsQueryByTimeSeriesSampling in C client
-- trigger, affinity
+- affinity
 
 Please refer to the following files for more detailed information.  
 - [Go Client API Reference](https://griddb.github.io/go_client/GoAPIReference.htm)
