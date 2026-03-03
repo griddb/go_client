@@ -8,25 +8,20 @@ GridDB Go Client is developed using GridDB C Client and [SWIG](http://www.swig.o
 
 Building of the library and execution of the sample programs have been checked in the following environment.
 
-    OS: CentOS 7.9(x64) (GCC 4.8.5)
-    SWIG: 4.0.2
-    Go: 1.16/1.18
-    GridDB C client: V5.0 CE(Community Edition)
-    GridDB server: V5.0 CE, CentOS 7.9(x64) (GCC 4.8.5)
 
-    OS: Ubuntu 18.04(x64) (GCC 7.3.0) / 20.04(x64) (GCC 9.4.0)
+    OS: Ubuntu 22.04(x64)/RockyLinux 9.4(x64) (GCC 11)
     SWIG: 4.0.2
-    Go: 1.16/1.18
-    GridDB C client: V5.0 CE
-    GridDB server: V5.0 CE, Ubuntu 18.04(x64) (Note: If you build from source code, please use GCC 4.8.5.)
-    
-    OS: Windows 10(x64) (gdm64-gcc 10.3.0)
-    SWIG: 4.0.2
-    Go: 1.16/1.18
-    GridDB C client: V5.0 CE
-    GridDB server: V5.0 CE, CentOS 7.9(x64) (GCC 4.8.5)
+    Go: 1.24
+    GridDB C client: V5.9 CE
+    GridDB server: V5.9 CE
 
-## QuickStart (CentOS, Ubuntu)
+    OS: Windows 11(x64) (gdm64-gcc 10.3.0)
+    SWIG: 4.0.2
+    Go: 1.24
+    GridDB C client: V5.9 CE
+    GridDB server: V5.9 CE, Ubuntu 22.04(x64) (GCC 11)
+
+## QuickStart (Ubuntu, RockyLinux)
 ### Preparations
 
 Install SWIG as below.
@@ -38,16 +33,12 @@ Install SWIG as below.
     $ ./configure
     $ make
     $ sudo make install
-   
-    Note: If CentOS, you might need to install pcre in advance.
-    $ sudo yum install pcre2-devel.x86_64
 
 Install Go.
 
 Install [GridDB Server](https://github.com/griddb/griddb) and [C Client](https://github.com/griddb/c_client). 
 
 Note: 
-- If you build Server from source code, please use GCC 4.8.5.
 - If you build C Client from source code, please set LIBRARY_PATH and LD_LIBRARY_PATH.
 
     Ex.)  
@@ -89,9 +80,9 @@ Install SWIG as below.
 - Extract the zip package then set PATH variable for swig tool.
 
 Install GO
-- Download and install package from https://dl.google.com/go/go1.16.2.windows-amd64.msi
+- Download and install package from https://dl.google.com/go/go1.24.13.windows-amd64.msi
 
-Install [GridDB Server](https://github.com/griddb/griddb) on CentOS. (Note: If you build them from source code, please use GCC 4.8.5.) 
+Install [GridDB Server](https://github.com/griddb/griddb) on Ubuntu. 
 
 Install GridDB C Client.
 - Please refer to https://github.com/griddb/c_client to install GridDB C client.
@@ -103,6 +94,7 @@ Set LIBRARY_PATH.
 
 Install tdm64-gcc
 - Download and install package from https://sourceforge.net/projects/tdm-gcc/files/v10.3.0-tdm64-2/tdm64-gcc-10.3.0-2.exe/download
+
 
 ### Build and Run in cmd
 
